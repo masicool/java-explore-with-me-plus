@@ -20,7 +20,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=stat
       - POSTGRES_USER=stat
-      - POSTGRES_DB=stat
+      - POSTGRES_DB=ewm-stat
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
