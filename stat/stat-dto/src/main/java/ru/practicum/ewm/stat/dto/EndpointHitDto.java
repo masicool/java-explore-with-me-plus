@@ -15,16 +15,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EndpointHitDto {
-    @NotBlank
+    @NotBlank(message = "Field 'app' cannot be null, empty or blank")
     private String app;
 
-    @NotBlank
+    @NotBlank(message = "Field 'uri' cannot be null, empty or blank")
     private String uri;
 
-    @NotBlank
+    @NotBlank(message = "Field 'ip' cannot be null, empty or blank")
     private String ip;
 
-    @NotNull
+    @NotNull(message = "Field 'timestamp' cannot be null")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 }
