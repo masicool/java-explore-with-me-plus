@@ -3,6 +3,7 @@ package ru.practicum.ewm.stat.server.controller;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.stat.dto.EndpointHitDto;
 import ru.practicum.ewm.stat.dto.ViewStatsDto;
@@ -19,6 +20,7 @@ public class StatController {
     private final ModelMapper modelMapper;
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto addHit(@RequestBody EndpointHitDto endpointHitDto) {
         EndpointHit endpointHit = endpointHitService.create(modelMapper.map(endpointHitDto, EndpointHit.class));
         return modelMapper.map(endpointHit, EndpointHitDto.class);
@@ -27,7 +29,7 @@ public class StatController {
     @GetMapping("/stats")
     public List<ViewStatsDto> getStats(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")  LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(required = false, defaultValue = "false") boolean unique) {
 
