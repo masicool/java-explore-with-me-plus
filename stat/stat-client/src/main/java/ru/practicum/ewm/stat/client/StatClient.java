@@ -40,10 +40,10 @@ public class StatClient {
                 .body(endpointHitDto)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
-                    throw new StatClientException(response.getStatusCode().value(), new String(response.getBody().readAllBytes()));
+                    throw new StatClientException(response.getStatusCode().value(), response.getBody().toString());
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-                    throw new StatClientException(response.getStatusCode().value(), new String(response.getBody().readAllBytes()));
+                    throw new StatClientException(response.getStatusCode().value(), response.getBody().toString());
                 })
                 .toBodilessEntity();
     }
@@ -61,10 +61,10 @@ public class StatClient {
                 .uri(uri)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
-                    throw new StatClientException(response.getStatusCode().value(), new String(response.getBody().readAllBytes()));
+                    throw new StatClientException(response.getStatusCode().value(), response.getBody().toString());
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-                    throw new StatClientException(response.getStatusCode().value(), new String(response.getBody().readAllBytes()));
+                    throw new StatClientException(response.getStatusCode().value(), response.getBody().toString());
                 })
                 .body(new ParameterizedTypeReference<>() {
                 });
