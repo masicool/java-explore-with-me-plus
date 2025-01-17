@@ -18,5 +18,7 @@ public class EndpointHit {
     String app;
     String uri;
     String ip;
+
+    @Column(name = "request_time")
     LocalDateTime timestamp;
 }
