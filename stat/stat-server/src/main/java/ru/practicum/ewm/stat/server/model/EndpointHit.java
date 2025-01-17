@@ -1,20 +1,22 @@
 package ru.practicum.ewm.stat.server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "hits")
 @NoArgsConstructor
 public class EndpointHit {
-    private Long id;
-    private String app;
-    private String uri;
-    private String ip;
-    private LocalDateTime timestamp;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+    String app;
+    String uri;
+    String ip;
+    LocalDateTime timestamp;
 }
