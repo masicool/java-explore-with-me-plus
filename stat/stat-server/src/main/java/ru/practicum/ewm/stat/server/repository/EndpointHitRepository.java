@@ -21,6 +21,20 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Intege
             "ORDER BY COUNT(eh.id) DESC")
     List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris);
 
+    @Query("select new ru.practicum.ewm.stat.server.model.ViewStats(eh.app, eh.uri, COUNT(eh.id)) " +
+            "from EndpointHit eh " +
+            "where eh.timestamp between :start and :end " +
+            "group by eh.app, eh.uri " +
+            "ORDER BY COUNT(eh.id) DESC")
+    List<ViewStats> getAllStats(LocalDateTime start, LocalDateTime end);
+
+    @Query("select new ru.practicum.ewm.stat.server.model.ViewStats(eh.app, eh.uri, COUNT(eh.id)) " +
+            "from EndpointHit eh " +
+            "where eh.timestamp between :start and :end " +
+            "group by eh.app, eh.uri " +
+            "ORDER BY COUNT(eh.id) DESC")
+    List<ViewStats> getAllUniqueStats(LocalDateTime start, LocalDateTime end);
+
     /**
      * Количество уникальных ip, с которых просматривали переданные uri (в разрезе приложений)
      */

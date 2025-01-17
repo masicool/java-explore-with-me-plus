@@ -22,7 +22,10 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         if (uris == null || uris.isEmpty()) {
-            return List.of();
+            if (unique) {
+                return statRepository.getAllUniqueStats(start, end);
+            }
+            return statRepository.getAllStats(start, end);
         }
         if (unique) {
             return statRepository.getUniqueStats(start, end, uris);
