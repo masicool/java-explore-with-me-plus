@@ -1,5 +1,6 @@
 package ru.practicum.ewm.stat.server.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +22,7 @@ public class StatController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public EndpointHitDto addHit(@RequestBody EndpointHitDto endpointHitDto) {
+    public EndpointHitDto addHit(@Valid @RequestBody EndpointHitDto endpointHitDto) {
         EndpointHit endpointHit = endpointHitService.create(modelMapper.map(endpointHitDto, EndpointHit.class));
         return modelMapper.map(endpointHit, EndpointHitDto.class);
     }
