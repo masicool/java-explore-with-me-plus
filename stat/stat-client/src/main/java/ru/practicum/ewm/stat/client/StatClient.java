@@ -19,19 +19,15 @@ public class StatClient {
 
     private final RestClient restClient;
     private final String serverUri;
-    private final String hitPath;
-    private final String statsPath;
 
     public StatClient(@Value("${stats-server.uri:http://localhost:9090}") String serverUri) {
         this.restClient = RestClient.create();
         this.serverUri = serverUri;
-        this.hitPath = "/hit";
-        this.statsPath = "/stats";
     }
 
     public void hit(EndpointHitDto endpointHitDto) {
         String uri = UriComponentsBuilder.fromHttpUrl(serverUri)
-                .path(hitPath)
+                .path("/hit")
                 .toUriString();
 
         restClient.post()
@@ -50,7 +46,7 @@ public class StatClient {
 
     public List<ViewStatsDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         String uri = UriComponentsBuilder.fromHttpUrl(serverUri)
-                .path(statsPath)
+                .path("/stats")
                 .queryParam("start", start)
                 .queryParam("end", end)
                 .queryParam("uris", uris)
