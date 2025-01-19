@@ -1,11 +1,14 @@
 package ru.practicum.ewm.stat.server.exception;
 
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.experimental.FieldDefaults;
 
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApiError {
-    private final String status;
-    private final String prefixMessage;
-    private final String message;
-    private final String stackTrace;
+    final String status;
+    final String prefixMessage;
+    final String message;
+    final String stackTrace;
 }

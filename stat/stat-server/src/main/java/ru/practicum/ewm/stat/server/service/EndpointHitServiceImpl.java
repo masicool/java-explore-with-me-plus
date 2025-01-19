@@ -21,11 +21,8 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     @Override
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        if (uris == null || uris.isEmpty()) {
-            if (unique) {
-                return statRepository.getAllUniqueStats(start, end);
-            }
-            return statRepository.getAllStats(start, end);
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("end must be greater than start");
         }
         if (unique) {
             return statRepository.getUniqueStats(start, end, uris);
