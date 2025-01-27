@@ -345,7 +345,9 @@ public class EventServiceImpl implements EventService {
                 throw new ForbiddenException("Cannot publish the event because it's not in the right state: " + event.getState());
             }
             switch (updateEventAdminRequestDto.getStateAction()) {
-                case PUBLISH_EVENT -> { event.setState(State.PUBLISHED); event.setPublished(LocalDateTime.now()); }
+                case PUBLISH_EVENT -> {
+                    event.setState(State.PUBLISHED); event.setPublished(LocalDateTime.now());
+                }
                 case REJECT_EVENT -> event.setState(State.CANCELED);
             }
         }

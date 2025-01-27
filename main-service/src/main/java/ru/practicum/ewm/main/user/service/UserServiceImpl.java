@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserDto> findUsersByRequest(List<Long> userIds, int from, int size) {
         PageRequest page = PageRequest.of(from, size);
-        if (userIds== null || userIds.isEmpty()) {
+        if (userIds == null || userIds.isEmpty()) {
             return userRepository.findAll(page).stream()
                     .map(o -> modelMapper.map(o, UserDto.class))
                     .toList();
