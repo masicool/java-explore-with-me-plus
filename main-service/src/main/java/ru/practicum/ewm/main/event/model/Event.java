@@ -9,6 +9,7 @@ import ru.practicum.ewm.main.category.model.Category;
 import ru.practicum.ewm.main.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -68,6 +69,6 @@ public class Event {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id);
     }
 }
