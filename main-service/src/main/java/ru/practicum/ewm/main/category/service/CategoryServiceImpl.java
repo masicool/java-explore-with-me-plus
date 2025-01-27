@@ -51,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> findAllCategories(int from, int size) {
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        PageRequest page = PageRequest.of(from, size);
         return categoryRepository.findAll(page).stream()
                 .map(o -> modelMapper.map(o, CategoryDto.class))
                 .toList();

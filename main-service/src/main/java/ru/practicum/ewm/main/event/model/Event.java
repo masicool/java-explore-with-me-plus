@@ -18,29 +18,34 @@ import java.time.LocalDateTime;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    long id;
+
+    @Column(nullable = false, length = 2000)
     String annotation;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     Category category;
 
+    @Column(nullable = false, length = 7000)
     String description;
 
     @Column(name = "event_date")
     LocalDateTime eventDate;
 
-    Float lat;
-    Float lon;
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    Location location;
 
-    Boolean paid;
+    boolean paid;
 
     @Column(name = "participant_limit")
-    Integer participantLimit;
+    int participantLimit;
 
     @Column(name = "request_moderation")
-    Boolean requestModeration;
+    boolean requestModeration;
 
+    @Column(nullable = false, length = 120)
     String title;
 
     LocalDateTime created;
@@ -53,4 +58,16 @@ public class Event {
     State state;
 
     LocalDateTime published;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Event)) return false;
+        return id == (((Event) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
