@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.main.event.dto.EventFullDto;
 import ru.practicum.ewm.main.event.dto.NewEventDto;
-import ru.practicum.ewm.main.event.dto.UpdateEventUserRequest;
+import ru.practicum.ewm.main.event.dto.UpdateEventUserRequestDto;
 import ru.practicum.ewm.main.event.service.EventService;
 
 import java.util.List;
@@ -21,29 +21,29 @@ public class PrivateEventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto addEvent(@PathVariable Long userId,
+    public EventFullDto addEvent(@PathVariable long userId,
                                  @Valid @RequestBody NewEventDto newEventDto) {
         return eventService.addEvent(userId, newEventDto);
     }
 
     @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto updateEvent(@PathVariable Long userId,
-                                    @PathVariable Long eventId,
-                                    @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        return eventService.updateEvent(userId, eventId, updateEventUserRequest);
+    public EventFullDto updateEvent(@PathVariable long userId,
+                                    @PathVariable long eventId,
+                                    @Valid @RequestBody UpdateEventUserRequestDto updateEventUserRequestDto) {
+        return eventService.updateEvent(userId, eventId, updateEventUserRequestDto);
     }
 
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto findOwnersEventById(@PathVariable Long userId,
-                                            @PathVariable Long eventId) {
+    public EventFullDto findOwnersEventById(@PathVariable long userId,
+                                            @PathVariable long eventId) {
         return eventService.findOwnersEventById(userId, eventId);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventFullDto> findOwnersEvens(@PathVariable Long userId,
+    public List<EventFullDto> findOwnersEvents(@PathVariable long userId,
                                               @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                               @RequestParam(defaultValue = "10") @Positive int size) {
         return eventService.findOwnersEvents(userId, from, size);

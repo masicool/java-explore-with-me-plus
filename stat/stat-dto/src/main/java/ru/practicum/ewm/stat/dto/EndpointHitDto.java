@@ -24,6 +24,6 @@ public class EndpointHitDto {
     String ip;
 
     @NotNull(message = "Field 'timestamp' cannot be null")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime timestamp;
 }

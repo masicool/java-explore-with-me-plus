@@ -31,8 +31,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> findUsersByRequest(List<Long> userIds, int from, int size) {
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        if (userIds == null) {
+        PageRequest page = PageRequest.of(from, size);
+        if (userIds == null || userIds.isEmpty()) {
             return userRepository.findAll(page).stream()
                     .map(o -> modelMapper.map(o, UserDto.class))
                     .toList();
