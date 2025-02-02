@@ -60,6 +60,10 @@ public class Event {
 
     LocalDateTime published;
 
+    public Event(long id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
