@@ -17,7 +17,7 @@ public interface EventService {
 
     EventFullDto editEvent(long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto);
 
-    List<EventShortDto> findAllEventsPublic(FindAllEventsPublic findAllEventsPublic);
+    List<EventShortDto> findAllEventsPublic(FindAllEventsPublicParamEntity findAllEventsPublicParamEntity);
 
     EventFullDto findEvent(long eventId);
 }

@@ -18,10 +18,10 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
-    final CategoryRepository categoryRepository;
-    final ModelMapper modelMapper;
+    CategoryRepository categoryRepository;
+    ModelMapper modelMapper;
 
     @Override
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {

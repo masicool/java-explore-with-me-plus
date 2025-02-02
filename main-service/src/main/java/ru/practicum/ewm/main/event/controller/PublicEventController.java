@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.main.event.dto.EventFullDto;
 import ru.practicum.ewm.main.event.dto.EventShortDto;
-import ru.practicum.ewm.main.event.dto.FindAllEventsPublic;
+import ru.practicum.ewm.main.event.dto.FindAllEventsPublicParamEntity;
 import ru.practicum.ewm.main.event.model.EventSortAction;
 import ru.practicum.ewm.main.event.service.EventService;
 import ru.practicum.ewm.stat.client.StatClient;
@@ -41,8 +41,8 @@ public class PublicEventController {
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
             @RequestParam(defaultValue = "10") @Positive int size,
             HttpServletRequest request) {
-        FindAllEventsPublic findAllEventsPublic = new FindAllEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
-        List<EventShortDto> events = eventService.findAllEventsPublic(findAllEventsPublic);
+        FindAllEventsPublicParamEntity findAllEventsPublicParamEntity = new FindAllEventsPublicParamEntity(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        List<EventShortDto> events = eventService.findAllEventsPublic(findAllEventsPublicParamEntity);
         EndpointHitDto endpointHitDto = new EndpointHitDto("main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         statClient.hit(endpointHitDto);
         return events;

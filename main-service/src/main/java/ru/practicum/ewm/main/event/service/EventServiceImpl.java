@@ -1,5 +1,7 @@
 package ru.practicum.ewm.main.event.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,29 +19,34 @@ import ru.practicum.ewm.main.event.repository.LocationRepository;
 import ru.practicum.ewm.main.exception.type.BadRequestException;
 import ru.practicum.ewm.main.exception.type.ForbiddenException;
 import ru.practicum.ewm.main.exception.type.NotFoundException;
+import ru.practicum.ewm.main.request.model.Request;
+import ru.practicum.ewm.main.request.model.Status;
+import ru.practicum.ewm.main.request.repository.RequestRepository;
 import ru.practicum.ewm.main.user.model.User;
 import ru.practicum.ewm.main.user.repository.UserRepository;
 import ru.practicum.ewm.stat.client.StatClient;
 import ru.practicum.ewm.stat.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 public class EventServiceImpl implements EventService {
-    final EventRepository eventRepository;
-    final LocationRepository locationRepository;
-    final UserRepository userRepository;
-    final CategoryRepository categoryRepository;
-    final StatClient statClient;
+    EventRepository eventRepository;
+    LocationRepository locationRepository;
+    UserRepository userRepository;
+    CategoryRepository categoryRepository;
+    StatClient statClient;
+    RequestRepository requestRepository;
 
     @Override
     public EventFullDto addEvent(long userId, NewEventDto newEventDto) {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenException("Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: " + newEventDto.getEventDate());
+            throw new ForbiddenException("EventDate must be after now");
         }
         User user = receiveUser(userId);
         Category category = receiveCategory(newEventDto.getCategory());
@@ -94,230 +101,11 @@ public class EventServiceImpl implements EventService {
         return loadStatisticAndRequestForList(events);
     }
 
-    //TODO Чуть позже перепишу этот огромный метод снизу. Он рабочий, но поддерживать его и разобраться в нем неудобно.
-
     @Override
     public List<EventFullDto> findAllEvents(FindAllEventsParamEntity findAllEventsParamEntity) {
+        Predicate predicate = predicateForFindingAllEventsByAdmin(findAllEventsParamEntity);
         PageRequest page = PageRequest.of(findAllEventsParamEntity.getFrom(), findAllEventsParamEntity.getSize());
-        if (findAllEventsParamEntity.getUsers() == null || findAllEventsParamEntity.getUsers().isEmpty()) {
-            if (findAllEventsParamEntity.getStates() == null || findAllEventsParamEntity.getStates().isEmpty()) {
-                if (findAllEventsParamEntity.getCategories() == null || findAllEventsParamEntity.getCategories().isEmpty()) {
-                    if (findAllEventsParamEntity.getRangeStart() == null) {
-                        if (findAllEventsParamEntity.getRangeEnd() == null) {
-                            // Юзеры null, Статус null, Категории null, Старт null, Конец null
-                            return eventRepository.findAll(page).stream()
-                                    .map(EventMapper::mapToEventFullDto)
-                                    .peek(this::loadStatisticAndRequest)
-                                    .toList();
-                        }
-                        // Юзеры null, Статус null, Категории null, Старт null, Конец есть
-                        return eventRepository.findByEventDateBefore(findAllEventsParamEntity.getRangeEnd(), page).stream()
-                                .map(EventMapper::mapToEventFullDto)
-                                .peek(this::loadStatisticAndRequest)
-                                .toList();
-                    }
-                    if (findAllEventsParamEntity.getRangeEnd() == null) {
-                        // Юзеры null, Статус null, Категории null, Старт есть, Конец null
-                        return eventRepository.findByEventDateAfter(findAllEventsParamEntity.getRangeStart(), page).stream()
-                                .map(EventMapper::mapToEventFullDto)
-                                .peek(this::loadStatisticAndRequest)
-                                .toList();
-                    }
-                    // Юзеры null, Статус null, Категории null, Старт есть, Конец есть
-                    return eventRepository.findByEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                if (findAllEventsParamEntity.getRangeStart() == null) {
-                    if (findAllEventsParamEntity.getRangeEnd() == null) {
-                        // Юзеры null, Статус null, Категории есть, Старт null, Конец null
-                        return eventRepository.findByCategoryIdIn(findAllEventsParamEntity.getCategories(), page).stream()
-                                .map(EventMapper::mapToEventFullDto)
-                                .peek(this::loadStatisticAndRequest)
-                                .toList();
-                    }
-                    // Юзеры null, Статус null, Категории есть, Старт null, Конец есть
-                    return eventRepository.findByCategoryIdInAndEventDateBefore(findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    // Юзеры null, Статус null, Категории есть, Старт есть, Конец null
-                    return eventRepository.findByCategoryIdInAndEventDateAfter(findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                // Юзеры null, Статус null, Категории есть, Старт есть, Конец есть
-                return eventRepository.findByCategoryIdInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getCategories() == null || findAllEventsParamEntity.getCategories().isEmpty()) {
-                if (findAllEventsParamEntity.getRangeStart() == null) {
-                    if (findAllEventsParamEntity.getRangeEnd() == null) {
-                        // Юзеры null, Статус есть, Категории null, Старт null, Конец null
-                        return eventRepository.findByStateIn(findAllEventsParamEntity.getStates(), page).stream()
-                                .map(EventMapper::mapToEventFullDto)
-                                .peek(this::loadStatisticAndRequest)
-                                .toList();
-                    }
-                    // Юзеры null, Статус есть, Категории null, Старт null, Конец есть
-                    return eventRepository.findByStateInAndEventDateBefore(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    // Юзеры null, Статус есть, Категории null, Старт есть, Конец null
-                    return eventRepository.findByStateInAndEventDateAfter(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                // Юзеры null, Статус есть, Категории null, Старт есть, Конец есть
-                return eventRepository.findByStateInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getRangeStart() == null) {
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    //Юзеры null, Статус есть, Категории есть, Старт null, Конец null
-                    return eventRepository.findByStateInAndCategoryIdIn(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                //Юзеры null, Статус есть, Категории есть, Старт null, Конец есть
-                return eventRepository.findByStateInAndCategoryIdInAndEventDateBefore(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getRangeEnd() == null) {
-                //Юзеры null, Статус есть, Категории есть, Старт есть, Конец null
-                return eventRepository.findByStateInAndCategoryIdInAndEventDateAfter(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            //Юзеры null, Статус есть, Категории есть, Старт есть, Конец есть
-            return eventRepository.findByStateInAndCategoryIdInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                    .map(EventMapper::mapToEventFullDto)
-                    .peek(this::loadStatisticAndRequest)
-                    .toList();
-        }
-        if (findAllEventsParamEntity.getStates() == null || findAllEventsParamEntity.getStates().isEmpty()) {
-            if (findAllEventsParamEntity.getCategories() == null || findAllEventsParamEntity.getCategories().isEmpty()) {
-                if (findAllEventsParamEntity.getRangeStart() == null) {
-                    if (findAllEventsParamEntity.getRangeEnd() == null) {
-                        // Юзеры есть, Статус null, Категории null, Старт null, конец null
-                        return eventRepository.findByInitiatorIdIn(findAllEventsParamEntity.getUsers(), page).stream()
-                                .map(EventMapper::mapToEventFullDto)
-                                .peek(this::loadStatisticAndRequest)
-                                .toList();
-                    }
-                    // Юзеры есть, Статус null, Категории null, Старт null, Конец есть
-                    return eventRepository.findByInitiatorIdInAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    // Юзеры есть, Статус null, Категории null, Старт есть, Конец null
-                    return eventRepository.findByInitiatorIdInAndEventDateAfter(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                // Юзеры есть, Статус null, Категории null, Старт есть, Конец есть
-                return eventRepository.findByInitiatorIdInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getRangeStart() == null) {
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    // Юзеры есть, Статус null, Категории есть, Старт null, конец null
-                    return eventRepository.findByInitiatorIdInAndCategoryIdIn(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getCategories(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                // Юзеры есть, Статус null, Категории есть, Старт null, Конец есть
-                return eventRepository.findByInitiatorIdInAndCategoryIdInAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getRangeEnd() == null) {
-                // Юзеры есть, Статус null, Категории есть, Старт есть, Конец null
-                return eventRepository.findByInitiatorIdInAndCategoryIdInAndEventDateAfter(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            // Юзеры есть, Статус null, Категории есть, Старт есть, Конец есть
-            return eventRepository.findByInitiatorIdInAndCategoryIdInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                    .map(EventMapper::mapToEventFullDto)
-                    .peek(this::loadStatisticAndRequest)
-                    .toList();
-        }
-        if (findAllEventsParamEntity.getCategories() == null || findAllEventsParamEntity.getCategories().isEmpty()) {
-            if (findAllEventsParamEntity.getRangeStart() == null) {
-                if (findAllEventsParamEntity.getRangeEnd() == null) {
-                    // Юзеры есть, Статус есть, Категории null, Старт null, конец null
-                    return eventRepository.findByInitiatorIdInAndStateIn(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), page).stream()
-                            .map(EventMapper::mapToEventFullDto)
-                            .peek(this::loadStatisticAndRequest)
-                            .toList();
-                }
-                // Юзеры есть, Статус есть, Категории null, Старт null, Конец есть
-                return eventRepository.findByInitiatorIdInAndStateInAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            if (findAllEventsParamEntity.getRangeEnd() == null) {
-                // Юзеры есть, Статус есть, Категории null, Старт есть, Конец null
-                return eventRepository.findByInitiatorIdInAndStateInAndEventDateAfter(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            // Юзеры есть, Статус есть, Категории null, Старт есть, Конец есть
-            return eventRepository.findByInitiatorIdInAndStateInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                    .map(EventMapper::mapToEventFullDto)
-                    .peek(this::loadStatisticAndRequest)
-                    .toList();
-        }
-        if (findAllEventsParamEntity.getRangeStart() == null) {
-            if (findAllEventsParamEntity.getRangeEnd() == null) {
-                // Юзеры есть, Статус есть, Категории есть, Старт null, Конец null
-                return eventRepository.findByInitiatorIdInAndStateInAndCategoryIdIn(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), page).stream()
-                        .map(EventMapper::mapToEventFullDto)
-                        .peek(this::loadStatisticAndRequest)
-                        .toList();
-            }
-            // Юзеры есть, Статус есть, Категории есть, Старт null, Конец есть
-            return eventRepository.findByInitiatorIdInAndStateInAndCategoryIdInAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeEnd(), page).stream()
-                    .map(EventMapper::mapToEventFullDto)
-                    .peek(this::loadStatisticAndRequest)
-                    .toList();
-        }
-        if (findAllEventsParamEntity.getRangeEnd() == null) {
-            // Юзеры есть, Статус есть, Категории есть, Старт есть, Конец null
-            return eventRepository.findByInitiatorIdInAndStateInAndCategoryIdInAndEventDateAfter(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), page).stream()
-                    .map(EventMapper::mapToEventFullDto)
-                    .peek(this::loadStatisticAndRequest)
-                    .toList();
-        }
-        // Юзеры есть, Статус есть, Категории есть, Старт есть, Конец есть
-        return eventRepository.findByInitiatorIdInAndStateInAndCategoryIdInAndEventDateAfterAndEventDateBefore(findAllEventsParamEntity.getUsers(), findAllEventsParamEntity.getStates(), findAllEventsParamEntity.getCategories(), findAllEventsParamEntity.getRangeStart(), findAllEventsParamEntity.getRangeEnd(), page).stream()
+        return eventRepository.findAll(predicate, page).stream()
                 .map(EventMapper::mapToEventFullDto)
                 .peek(this::loadStatisticAndRequest)
                 .toList();
@@ -342,7 +130,7 @@ public class EventServiceImpl implements EventService {
         updateFields(event, updateEventFieldsEntity);
         if (updateEventAdminRequestDto.getStateAction() != null) {
             if (event.getState() != State.PENDING) {
-                throw new ForbiddenException("Cannot publish the event because it's not in the right state: " + event.getState());
+                throw new ForbiddenException("Cannot publish the event because it is not in PENDING");
             }
             switch (updateEventAdminRequestDto.getStateAction()) {
                 case PUBLISH_EVENT -> {
@@ -355,16 +143,37 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> findAllEventsPublic(FindAllEventsPublic findAllEventsPublic) {
-        LocalDateTime rangeEnd = findAllEventsPublic.getRangeEnd();
-        LocalDateTime rangeStart = findAllEventsPublic.getRangeStart();
+    public List<EventShortDto> findAllEventsPublic(FindAllEventsPublicParamEntity findAllEventsPublicParamEntity) {
+        LocalDateTime rangeEnd = findAllEventsPublicParamEntity.getRangeEnd();
+        LocalDateTime rangeStart = findAllEventsPublicParamEntity.getRangeStart();
         if (rangeEnd != null && rangeStart != null) {
             if (rangeEnd.isBefore(rangeStart)) {
                 throw new BadRequestException("'rangeEnd' can not be before 'rangeStart'");
             }
         }
-        //TODO Чуть позже допишу этот метод и здесь также нужно будет добавить запросы к репозиторию с запросами.
-        return List.of();
+        Predicate predicate = predicateForFindingAllEventsByAny(findAllEventsPublicParamEntity);
+        PageRequest page = PageRequest.of(findAllEventsPublicParamEntity.getFrom(), findAllEventsPublicParamEntity.getSize());
+        List<Event> events = eventRepository.findAll(predicate, page).stream().toList();
+        if (findAllEventsPublicParamEntity.isOnlyAvailable()) {
+            events = events.stream()
+                    .filter(this::isEventAvailableByLimit)
+                    .toList();
+        }
+        List<EventShortDto> eventShortDtos = events.stream()
+                .map(this::loadStatisticAndRequest)
+                .toList();
+        if (findAllEventsPublicParamEntity.getSort() != null) {
+            switch (findAllEventsPublicParamEntity.getSort()) {
+                case EVENT_DATE ->
+                        eventShortDtos = eventShortDtos.stream()
+                                .sorted(Comparator.comparing(EventShortDto::getEventDate))
+                                .toList();
+                case VIEWS -> eventShortDtos = eventShortDtos.stream()
+                        .sorted(Comparator.comparing(EventShortDto::getViews))
+                        .toList();
+            }
+        }
+        return eventShortDtos;
     }
 
     @Override
@@ -411,8 +220,17 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private EventShortDto loadStatisticAndRequest(Event event) {
+        long amountOfConfirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
+        long amountOfViews = statClient.getStat(event.getCreated(), LocalDateTime.now(), List.of("/events/" + event.getId()), true).stream()
+                .map(ViewStatsDto::getHits)
+                .reduce(0L, Long::sum);
+        return EventMapper.mapToEventShortDto(event, amountOfConfirmedRequests, amountOfViews);
+    }
+
     private EventFullDto loadStatisticAndRequest(EventFullDto event) {
-        // TODO Здесь нужно добавить запрос к репозиторию с запросами для заполнения.
+        long amountOfConfirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
+        event.setConfirmedRequests(amountOfConfirmedRequests);
         long amountOfViews = statClient.getStat(event.getCreatedOn(), LocalDateTime.now(), List.of("/events/" + event.getId()), true).stream()
                 .map(ViewStatsDto::getHits)
                 .reduce(0L, Long::sum);
@@ -421,7 +239,6 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventFullDto> loadStatisticAndRequestForList(List<EventFullDto> events) {
-        // TODO Здесь нужно добавить запрос к репозиторию с запросами для заполнения.
         if (events == null || events.isEmpty()) {
             return List.of();
         }
@@ -432,13 +249,64 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> "/events/" + event.getId())
                 .toList();
+        List<Request> requests = requestRepository.findByEventIdIn(events.stream()
+                .map(EventFullDto::getId)
+                .toList());
         List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
         return events.stream()
+                .peek(event -> event.setConfirmedRequests(requests.stream()
+                        .filter(request -> request.getEvent().getId() == event.getId())
+                        .count()))
                 .peek(event -> event.setViews(viewStats.stream()
                         .filter(view -> view.getUri().equals("/events/" + event.getId()))
                         .map(ViewStatsDto::getHits)
                         .reduce(0L, Long::sum)))
                 .toList();
+    }
+
+    private Predicate predicateForFindingAllEventsByAdmin(FindAllEventsParamEntity findAllEventsParamEntity) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (findAllEventsParamEntity.getUsers() != null && !findAllEventsParamEntity.getUsers().isEmpty()) {
+            booleanBuilder.and(QEvent.event.initiator.id.in(findAllEventsParamEntity.getUsers()));
+        }
+        if (findAllEventsParamEntity.getStates() != null && !findAllEventsParamEntity.getStates().isEmpty()) {
+            booleanBuilder.and(QEvent.event.state.in(findAllEventsParamEntity.getStates()));
+        }
+        if (findAllEventsParamEntity.getCategories() != null && !findAllEventsParamEntity.getCategories().isEmpty()) {
+            booleanBuilder.and(QEvent.event.category.id.in(findAllEventsParamEntity.getCategories()));
+        }
+        if (findAllEventsParamEntity.getRangeStart() != null) {
+            booleanBuilder.and(QEvent.event.eventDate.after(findAllEventsParamEntity.getRangeStart()));
+        }
+        if (findAllEventsParamEntity.getRangeEnd() != null) {
+            booleanBuilder.and(QEvent.event.eventDate.before(findAllEventsParamEntity.getRangeEnd()));
+        }
+        return booleanBuilder.getValue();
+    }
+
+    private Predicate predicateForFindingAllEventsByAny(FindAllEventsPublicParamEntity findAllEventsPublicParamEntity) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        booleanBuilder.and(QEvent.event.state.eq(State.PUBLISHED));
+        if (findAllEventsPublicParamEntity.getText() != null && !findAllEventsPublicParamEntity.getText().isBlank()) {
+            booleanBuilder.and(QEvent.event.description.containsIgnoreCase(findAllEventsPublicParamEntity.getText())
+                    .or(QEvent.event.annotation.containsIgnoreCase(findAllEventsPublicParamEntity.getText())));
+        }
+        if (findAllEventsPublicParamEntity.getCategories() != null && !findAllEventsPublicParamEntity.getCategories().isEmpty()) {
+            booleanBuilder.and(QEvent.event.category.id.in(findAllEventsPublicParamEntity.getCategories()));
+        }
+        if (findAllEventsPublicParamEntity.getPaid() != null) {
+            booleanBuilder.and(QEvent.event.paid.eq(findAllEventsPublicParamEntity.getPaid()));
+        }
+        if (findAllEventsPublicParamEntity.getRangeStart() != null) {
+            booleanBuilder.and(QEvent.event.eventDate.after(findAllEventsPublicParamEntity.getRangeStart()));
+        }
+        if (findAllEventsPublicParamEntity.getRangeEnd() != null) {
+            booleanBuilder.and(QEvent.event.eventDate.before(findAllEventsPublicParamEntity.getRangeEnd()));
+        }
+        if (findAllEventsPublicParamEntity.getRangeStart() != null && findAllEventsPublicParamEntity.getRangeEnd() != null) {
+            booleanBuilder.and(QEvent.event.eventDate.after(LocalDateTime.now()));
+        }
+        return booleanBuilder.getValue();
     }
 
     private User receiveUser(long userId) {
@@ -459,6 +327,10 @@ public class EventServiceImpl implements EventService {
     private void checkValidUserForEvent(User user, Event event) {
         if (!event.getInitiator().equals(user))
             throw new BadRequestException("Event is not for this user");
+    }
+
+    private boolean isEventAvailableByLimit(Event event) {
+        return event.getParticipantLimit() > requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
     }
 
     private Location addLocation(LocationDto locationDto) {
