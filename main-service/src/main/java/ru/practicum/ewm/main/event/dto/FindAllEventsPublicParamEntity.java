@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class FindAllEventsPublic {
+public class FindAllEventsPublicParamEntity {
     String text;
     List<Long> categories;
     Boolean paid;

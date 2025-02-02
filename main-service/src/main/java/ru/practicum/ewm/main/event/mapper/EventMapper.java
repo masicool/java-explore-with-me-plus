@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import ru.practicum.ewm.main.category.mapper.CategoryMapper;
 import ru.practicum.ewm.main.category.model.Category;
 import ru.practicum.ewm.main.event.dto.EventFullDto;
+import ru.practicum.ewm.main.event.dto.EventShortDto;
 import ru.practicum.ewm.main.event.dto.NewEventDto;
 import ru.practicum.ewm.main.event.model.Event;
 import ru.practicum.ewm.main.event.model.Location;
@@ -38,7 +39,7 @@ public class EventMapper {
         EventFullDto dto = new EventFullDto();
         dto.setAnnotation(event.getAnnotation());
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
-        dto.setConfirmedRequests(0); // TODO Пустой confirmedRequests, его надо заполнить в сервисе из репозитория с запросами.
+        dto.setConfirmedRequests(0);
         dto.setCreatedOn(event.getCreated());
         dto.setDescription(event.getDescription());
         dto.setEventDate(event.getEventDate());
@@ -52,6 +53,20 @@ public class EventMapper {
         dto.setState(event.getState());
         dto.setTitle(event.getTitle());
         dto.setViews(0);
+        return dto;
+    }
+
+    public static EventShortDto mapToEventShortDto(Event event, long  amountOfConfirmedRequests, long amountOfViews) {
+        EventShortDto dto = new EventShortDto();
+        dto.setAnnotation(event.getAnnotation());
+        dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
+        dto.setConfirmedRequests(amountOfConfirmedRequests);
+        dto.setEventDate(event.getEventDate());
+        dto.setId(event.getId());
+        dto.setInitiator(UserMapper.mapToUserShortDto(event.getInitiator()));
+        dto.setPaid(event.isPaid());
+        dto.setTitle(event.getTitle());
+        dto.setViews(amountOfViews);
         return dto;
     }
 }

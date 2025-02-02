@@ -18,10 +18,10 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
-    final UserRepository userRepository;
-    final ModelMapper modelMapper;
+    UserRepository userRepository;
+    ModelMapper modelMapper;
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
