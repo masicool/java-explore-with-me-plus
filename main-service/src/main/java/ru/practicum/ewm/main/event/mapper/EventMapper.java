@@ -39,7 +39,7 @@ public class EventMapper {
         EventFullDto dto = new EventFullDto();
         dto.setAnnotation(event.getAnnotation());
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
-        dto.setConfirmedRequests(0); // TODO Пустой confirmedRequests, его надо заполнить в сервисе из репозитория с запросами.
+        dto.setConfirmedRequests(0);
         dto.setCreatedOn(event.getCreated());
         dto.setDescription(event.getDescription());
         dto.setEventDate(event.getEventDate());
