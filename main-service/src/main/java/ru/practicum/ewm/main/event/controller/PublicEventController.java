@@ -51,9 +51,8 @@ public class PublicEventController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto findEvent(@PathVariable long id, HttpServletRequest request) {
-        EventFullDto event = eventService.findEvent(id);
         EndpointHitDto endpointHitDto = new EndpointHitDto("main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         statClient.hit(endpointHitDto);
-        return event;
+        return eventService.findEvent(id);
     }
 }

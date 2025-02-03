@@ -28,7 +28,7 @@ public class EventMapper {
         event.setParticipantLimit(request.getParticipantLimit());
         event.setRequestModeration(request.getRequestModeration());
         event.setTitle(request.getTitle());
-        event.setCreated(LocalDateTime.now());
+        event.setCreated(LocalDateTime.now().withNano(0));
         event.setInitiator(user);
         event.setState(State.PENDING);
         event.setPublished(null);
@@ -56,7 +56,7 @@ public class EventMapper {
         return dto;
     }
 
-    public static EventShortDto mapToEventShortDto(Event event, long  amountOfConfirmedRequests, long amountOfViews) {
+    public static EventShortDto mapToEventShortDto(Event event, long amountOfConfirmedRequests, long amountOfViews) {
         EventShortDto dto = new EventShortDto();
         dto.setAnnotation(event.getAnnotation());
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));

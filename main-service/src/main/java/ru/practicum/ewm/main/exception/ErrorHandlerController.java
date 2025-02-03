@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.ewm.main.exception.type.BadRequestException;
 import ru.practicum.ewm.main.exception.type.ForbiddenException;
@@ -19,31 +18,26 @@ import java.time.LocalDateTime;
 public class ErrorHandlerController {
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
         return buildResponseEntity(ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         return buildResponseEntity(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ApiError> handleForbiddenException(ForbiddenException ex) {
         return buildResponseEntity(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ru.practicum.ewm.main.exception.type.BadRequestException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleBadRequestException(BadRequestException ex) {
         return buildResponseEntity(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleArgumentNotValidException(MethodArgumentNotValidException ex) {
         return buildResponseEntity(ex, HttpStatus.BAD_REQUEST);
     }
