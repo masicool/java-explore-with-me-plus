@@ -22,7 +22,7 @@ public class Compilation {
 
     String title;
 
-    Boolean pinned;
+    boolean pinned;
 
     @ManyToMany
     @JoinTable(name = "events_compilations",
