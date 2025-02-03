@@ -87,6 +87,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto findOwnersEventById(long userId, long eventId) {
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
@@ -95,6 +96,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> findOwnersEvents(long userId, int from, int size) {
         User user = receiveUser(userId);
         PageRequest page = PageRequest.of(from, size);
@@ -105,6 +107,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> findAllEvents(FindAllEventsParamEntity findAllEventsParamEntity) {
         Predicate predicate = predicateForFindingAllEventsByAdmin(findAllEventsParamEntity);
         PageRequest page = PageRequest.of(findAllEventsParamEntity.getFrom(), findAllEventsParamEntity.getSize());
@@ -148,6 +151,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> findAllEventsPublic(FindAllEventsPublicParamEntity findAllEventsPublicParamEntity) {
         LocalDateTime rangeEnd = findAllEventsPublicParamEntity.getRangeEnd();
         LocalDateTime rangeStart = findAllEventsPublicParamEntity.getRangeStart();
@@ -181,6 +185,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto findEvent(long eventId) {
         Event event = receiveEvent(eventId);
         if (event.getState() != State.PUBLISHED) {
