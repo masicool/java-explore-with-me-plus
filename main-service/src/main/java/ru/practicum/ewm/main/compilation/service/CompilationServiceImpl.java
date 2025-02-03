@@ -48,19 +48,14 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CompilationDto getCompilation(Long compId) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow();
         return getCompilationDto(compilation);
     }
 
-    private CompilationDto getCompilationDto(Compilation compilation) {
-        CompilationDto result = modelMapper.map(compilation, CompilationDto.class);
-        List<Event> events = eventRepository.getEventsByCompilationId(compilation.getId());
-        result.setEvents(events.stream().map(event -> modelMapper.map(event, EventShortDto.class)).toList());
-        return result;
-    }
-
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(GetCompilationsParams params) {
         PageRequest pageRequest = PageRequest.of(params.getFrom(), params.getSize());
         // поиск подборок по фильтру. запрос 1
@@ -103,5 +98,12 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void deleteCompilationById(long compId) {
         compilationRepository.deleteById(compId);
+    }
+
+    private CompilationDto getCompilationDto(Compilation compilation) {
+        CompilationDto result = modelMapper.map(compilation, CompilationDto.class);
+        List<Event> events = eventRepository.getEventsByCompilationId(compilation.getId());
+        result.setEvents(events.stream().map(event -> modelMapper.map(event, EventShortDto.class)).toList());
+        return result;
     }
 }

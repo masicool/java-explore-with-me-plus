@@ -13,7 +13,10 @@ import ru.practicum.ewm.main.category.repository.CategoryRepository;
 import ru.practicum.ewm.main.event.dto.*;
 import ru.practicum.ewm.main.event.mapper.EventMapper;
 import ru.practicum.ewm.main.event.mapper.LocationMapper;
-import ru.practicum.ewm.main.event.model.*;
+import ru.practicum.ewm.main.event.model.Event;
+import ru.practicum.ewm.main.event.model.Location;
+import ru.practicum.ewm.main.event.model.QEvent;
+import ru.practicum.ewm.main.event.model.State;
 import ru.practicum.ewm.main.event.repository.EventRepository;
 import ru.practicum.ewm.main.event.repository.LocationRepository;
 import ru.practicum.ewm.main.exception.type.BadRequestException;
@@ -46,7 +49,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto addEvent(long userId, NewEventDto newEventDto) {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenException("EventDate must be after now");
+            throw new BadRequestException("EventDate must be after now");
         }
         User user = receiveUser(userId);
         Category category = receiveCategory(newEventDto.getCategory());
@@ -60,7 +63,7 @@ public class EventServiceImpl implements EventService {
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
         checkValidUserForEvent(user, event);
-        if (event.getState() != State.PUBLISHED) {
+        if (event.getState() == State.PUBLISHED) {
             throw new ForbiddenException("Event must not be published");
         }
         UpdateEventFieldsEntity updateEventFieldsEntity = new UpdateEventFieldsEntity(updateEventUserRequestDto.getAnnotation(),
@@ -84,6 +87,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto findOwnersEventById(long userId, long eventId) {
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
@@ -92,6 +96,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> findOwnersEvents(long userId, int from, int size) {
         User user = receiveUser(userId);
         PageRequest page = PageRequest.of(from, size);
@@ -102,6 +107,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> findAllEvents(FindAllEventsParamEntity findAllEventsParamEntity) {
         Predicate predicate = predicateForFindingAllEventsByAdmin(findAllEventsParamEntity);
         PageRequest page = PageRequest.of(findAllEventsParamEntity.getFrom(), findAllEventsParamEntity.getSize());
@@ -112,10 +118,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto editEvent(long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto) {
         Event event = receiveEvent(eventId);
         if (updateEventAdminRequestDto.getEventDate() != null && updateEventAdminRequestDto.getEventDate().isBefore(event.getCreated().plusHours(1))) {
-            throw new ForbiddenException("Date of event cannot be before created date!");
+            throw new BadRequestException("Date of event cannot be before created date!");
         }
         UpdateEventFieldsEntity updateEventFieldsEntity = new UpdateEventFieldsEntity(updateEventAdminRequestDto.getAnnotation(),
                 updateEventAdminRequestDto.getCategory(),
@@ -134,7 +141,8 @@ public class EventServiceImpl implements EventService {
             }
             switch (updateEventAdminRequestDto.getStateAction()) {
                 case PUBLISH_EVENT -> {
-                    event.setState(State.PUBLISHED); event.setPublished(LocalDateTime.now());
+                    event.setState(State.PUBLISHED);
+                    event.setPublished(LocalDateTime.now());
                 }
                 case REJECT_EVENT -> event.setState(State.CANCELED);
             }
@@ -143,6 +151,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> findAllEventsPublic(FindAllEventsPublicParamEntity findAllEventsPublicParamEntity) {
         LocalDateTime rangeEnd = findAllEventsPublicParamEntity.getRangeEnd();
         LocalDateTime rangeStart = findAllEventsPublicParamEntity.getRangeStart();
@@ -164,10 +173,9 @@ public class EventServiceImpl implements EventService {
                 .toList();
         if (findAllEventsPublicParamEntity.getSort() != null) {
             switch (findAllEventsPublicParamEntity.getSort()) {
-                case EVENT_DATE ->
-                        eventShortDtos = eventShortDtos.stream()
-                                .sorted(Comparator.comparing(EventShortDto::getEventDate))
-                                .toList();
+                case EVENT_DATE -> eventShortDtos = eventShortDtos.stream()
+                        .sorted(Comparator.comparing(EventShortDto::getEventDate))
+                        .toList();
                 case VIEWS -> eventShortDtos = eventShortDtos.stream()
                         .sorted(Comparator.comparing(EventShortDto::getViews))
                         .toList();
@@ -177,6 +185,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto findEvent(long eventId) {
         Event event = receiveEvent(eventId);
         if (event.getState() != State.PUBLISHED) {
@@ -188,7 +197,7 @@ public class EventServiceImpl implements EventService {
     private void updateFields(Event event, UpdateEventFieldsEntity updateEventFieldsEntity) {
         if (updateEventFieldsEntity.hasEventDate()) {
             if (updateEventFieldsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ForbiddenException("The date and time of event cannot be earlier than two hours from the current moment.");
+                throw new BadRequestException("The date and time of event cannot be earlier than two hours from the current moment.");
             }
             event.setEventDate(updateEventFieldsEntity.getEventDate());
         }
@@ -281,6 +290,7 @@ public class EventServiceImpl implements EventService {
         if (findAllEventsParamEntity.getRangeEnd() != null) {
             booleanBuilder.and(QEvent.event.eventDate.before(findAllEventsParamEntity.getRangeEnd()));
         }
+        if (!booleanBuilder.hasValue()) booleanBuilder.and(QEvent.event.id.isNotNull());
         return booleanBuilder.getValue();
     }
 

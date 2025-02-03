@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.event.model.Event;
 import ru.practicum.ewm.main.event.model.State;
 import ru.practicum.ewm.main.event.repository.EventRepository;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RequestServiceImpl implements RequestService {
 
@@ -34,6 +36,7 @@ public class RequestServiceImpl implements RequestService {
     EventRepository eventRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> findUserRequests(long userId) {
         receiveUser(userId);
         return requestRepository.findByRequesterId(userId).stream()
@@ -42,6 +45,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> findAllRequestsOfEvent(long userId, long eventId) {
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
@@ -106,12 +110,14 @@ public class RequestServiceImpl implements RequestService {
             List<Request> confirmedRequests = new ArrayList<>();
             List<Request> rejectedRequests = new ArrayList<>();
             for (Request request : requests) {
-                if (event.getParticipantLimit() < amountOfConfirmedRequests) {
+                if (event.getParticipantLimit() > amountOfConfirmedRequests) {
                     request.setStatus(Status.CONFIRMED);
+                    requestRepository.save(request);
                     confirmedRequests.add(request);
                     amountOfConfirmedRequests++;
                 } else {
                     request.setStatus(Status.REJECTED);
+                    requestRepository.save(request);
                     rejectedRequests.add(request);
                 }
             }
@@ -119,6 +125,7 @@ public class RequestServiceImpl implements RequestService {
         } else {
             for (Request request : requests) {
                 request.setStatus(Status.REJECTED);
+                requestRepository.save(request);
             }
             return RequestMapper.mapToEventRequestStatusUpdateResult(List.of(), requests);
         }
