@@ -1,7 +1,9 @@
 package ru.practicum.ewm.main.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -12,61 +14,50 @@ import ru.practicum.ewm.main.exception.type.NotFoundException;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class ErrorHandlerController {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleNotFoundException(NotFoundException ex) {
-        return ApiError.builder()
-                .status(HttpStatus.NOT_FOUND.toString())
-                .reason("The required object was not found")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
+        return buildResponseEntity(ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return ApiError.builder()
-                .status(HttpStatus.CONFLICT.toString())
-                .reason("Integrity constraint has been violated")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        return buildResponseEntity(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleForbiddenException(ForbiddenException ex) {
-        return ApiError.builder()
-                .status(HttpStatus.CONFLICT.toString())
-                .reason("For the requested operation the conditions are not met")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleForbiddenException(ForbiddenException ex) {
+        return buildResponseEntity(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ru.practicum.ewm.main.exception.type.BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleBadRequestException(BadRequestException ex) {
-        return ApiError.builder()
-                .status(HttpStatus.BAD_REQUEST.toString())
-                .reason("Incorrectly made request")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleBadRequestException(BadRequestException ex) {
+        return buildResponseEntity(ex, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleArgumentNotValidException(MethodArgumentNotValidException ex) {
-        return ApiError.builder()
-                .status(HttpStatus.BAD_REQUEST.toString())
-                .reason("Incorrectly made request")
-                .message(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
+    public ResponseEntity<ApiError> handleArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return buildResponseEntity(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<ApiError> buildResponseEntity(Exception ex, HttpStatus status) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(
+                ApiError.builder()
+                        .status(status.toString())
+                        .reason(ex.getClass().toString())
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build(),
+                status
+        );
     }
 }
