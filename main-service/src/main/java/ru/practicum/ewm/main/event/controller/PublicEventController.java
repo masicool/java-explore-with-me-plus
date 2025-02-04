@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,9 @@ public class PublicEventController {
     private final EventService eventService;
     private final StatClient statClient;
 
+    @Value("${app.name}")
+    private String appName;
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> findAllEventsPublic(
@@ -43,7 +47,7 @@ public class PublicEventController {
             HttpServletRequest request) {
         FindAllEventsPublicParamEntity findAllEventsPublicParamEntity = new FindAllEventsPublicParamEntity(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
         List<EventShortDto> events = eventService.findAllEventsPublic(findAllEventsPublicParamEntity);
-        EndpointHitDto endpointHitDto = new EndpointHitDto("main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
+        EndpointHitDto endpointHitDto = new EndpointHitDto(appName, request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         statClient.hit(endpointHitDto);
         return events;
     }

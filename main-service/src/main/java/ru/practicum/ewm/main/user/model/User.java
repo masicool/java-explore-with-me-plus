@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Objects;
-
 @Data
 @NoArgsConstructor
 @Entity
@@ -23,16 +21,4 @@ public class User {
 
     @Column(nullable = false, length = 250)
     String name;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        return id == (((User) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }

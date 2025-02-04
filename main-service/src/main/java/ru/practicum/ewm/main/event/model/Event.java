@@ -9,7 +9,6 @@ import ru.practicum.ewm.main.category.model.Category;
 import ru.practicum.ewm.main.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -62,17 +61,5 @@ public class Event {
 
     public Event(long id) {
         this.id = id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Event)) return false;
-        return id == (((Event) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
