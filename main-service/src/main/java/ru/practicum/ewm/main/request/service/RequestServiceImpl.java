@@ -112,21 +112,20 @@ public class RequestServiceImpl implements RequestService {
             for (Request request : requests) {
                 if (event.getParticipantLimit() > amountOfConfirmedRequests) {
                     request.setStatus(Status.CONFIRMED);
-                    requestRepository.save(request);
                     confirmedRequests.add(request);
                     amountOfConfirmedRequests++;
                 } else {
                     request.setStatus(Status.REJECTED);
-                    requestRepository.save(request);
                     rejectedRequests.add(request);
                 }
             }
+            requestRepository.saveAll(requests);
             return RequestMapper.mapToEventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
         } else {
             for (Request request : requests) {
                 request.setStatus(Status.REJECTED);
-                requestRepository.save(request);
             }
+            requestRepository.saveAll(requests);
             return RequestMapper.mapToEventRequestStatusUpdateResult(List.of(), requests);
         }
     }

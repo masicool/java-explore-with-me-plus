@@ -27,7 +27,6 @@
         <querydsl.version>5.1.0</querydsl.version>
         <jakarta.validation-api.version>3.1.0</jakarta.validation-api.version>
         <jackson-annotations.version>2.18.2</jackson-annotations.version>
-        <jackson-annotations.version>2.18.2</jackson-annotations.version>
     </properties>
 
     <modules>

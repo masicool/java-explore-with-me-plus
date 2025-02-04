@@ -24,9 +24,9 @@ public class EventMapper {
         event.setDescription(request.getDescription());
         event.setEventDate(request.getEventDate());
         event.setLocation(location);
-        event.setPaid(request.getPaid());
+        event.setPaid(request.isPaid());
         event.setParticipantLimit(request.getParticipantLimit());
-        event.setRequestModeration(request.getRequestModeration());
+        event.setRequestModeration(request.isRequestModeration());
         event.setTitle(request.getTitle());
         event.setCreated(LocalDateTime.now().withNano(0));
         event.setInitiator(user);
