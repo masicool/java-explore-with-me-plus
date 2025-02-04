@@ -9,7 +9,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class UpdateEventBaseRequestDto {
+public abstract class UpdateEventBaseRequestDto {
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @Size(min = 20, max = 2000, message = "Length of field 'annotation' should be in the range from 20 to 2000")
