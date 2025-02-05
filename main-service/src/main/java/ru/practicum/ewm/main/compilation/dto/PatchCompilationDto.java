@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -16,5 +16,5 @@ public class PatchCompilationDto {
     @Size(max = 50, message = "Length of field 'title' should be in the range from 0 to 50")
     String title;
     Boolean pinned;
-    List<Long> events;
+    Set<Long> events;
 }
