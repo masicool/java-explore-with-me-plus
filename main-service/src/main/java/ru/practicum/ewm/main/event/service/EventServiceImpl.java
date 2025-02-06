@@ -11,12 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.category.model.Category;
 import ru.practicum.ewm.main.category.repository.CategoryRepository;
 import ru.practicum.ewm.main.event.dto.*;
+import ru.practicum.ewm.main.event.mapper.CommentMapper;
 import ru.practicum.ewm.main.event.mapper.EventMapper;
 import ru.practicum.ewm.main.event.mapper.LocationMapper;
-import ru.practicum.ewm.main.event.model.Event;
-import ru.practicum.ewm.main.event.model.Location;
-import ru.practicum.ewm.main.event.model.QEvent;
-import ru.practicum.ewm.main.event.model.State;
+import ru.practicum.ewm.main.event.model.*;
+import ru.practicum.ewm.main.event.repository.CommentRepository;
 import ru.practicum.ewm.main.event.repository.EventRepository;
 import ru.practicum.ewm.main.event.repository.LocationRepository;
 import ru.practicum.ewm.main.exception.type.BadRequestException;
@@ -45,6 +44,7 @@ public class EventServiceImpl implements EventService {
     CategoryRepository categoryRepository;
     StatClient statClient;
     RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public EventFullDto addEvent(long userId, NewEventDto newEventDto) {
@@ -194,6 +194,84 @@ public class EventServiceImpl implements EventService {
         return loadStatisticAndRequest(EventMapper.mapToEventFullDto(event));
     }
 
+    @Override
+    public CommentFullDto addComment(long userId, long eventId, NewCommentDto newCommentDto) {
+        User user = receiveUser(userId);
+        Event event = receiveEvent(eventId);
+        checkValidEventStatusAndRequester(event, user);
+        return CommentMapper.mapToCommentFullDto(commentRepository.save(CommentMapper.mapToComment(event, user, newCommentDto)));
+    }
+
+    @Override
+    public CommentFullDto updateComment(long userId, long eventId, long commentId, UpdateCommentDto updateCommentDto) {
+        Comment comment = receiveComment(commentId);
+        User user = receiveUser(userId);
+        Event event = receiveEvent(eventId);
+        // инициатор также может редактировать комментарии
+        checkValidEventStatusAndRequester(event, user);
+        updateComment(comment, updateCommentDto);
+        return CommentMapper.mapToCommentFullDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentFullDto updateCommentAdmin(long commentId, UpdateCommentDto updateCommentDto) {
+        Comment comment = receiveComment(commentId);
+        updateComment(comment, updateCommentDto);
+        return CommentMapper.mapToCommentFullDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentFullDto findComment(long commentId) {
+        Comment comment = receiveComment(commentId);
+        return CommentMapper.mapToCommentFullDto(comment);
+    }
+
+    @Override
+    public List<CommentFullDto> findAllEventComments(long eventId, int from, int size) {
+        PageRequest page = PageRequest.of(from, size);
+        return CommentMapper.mapToCommentFullDto(commentRepository.findAllByEventId(eventId, page));
+    }
+
+    @Override
+    public void deleteCommentAdmin(long commentId) {
+        receiveComment(commentId);
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    public void deleteComment(long userId, long eventId, long commentId) {
+        receiveComment(commentId);
+        User user = receiveUser(userId);
+        Event event = receiveEvent(eventId);
+        // инициатор также может удалять комментарии
+        checkValidEventStatusAndRequester(event, user);
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    public void deleteAllEventCommentsAdmin(long eventId) {
+        receiveEvent(eventId);
+        commentRepository.deleteAllByEventId(eventId);
+    }
+
+    private void checkValidEventStatusAndRequester(Event event, User user) {
+        // комментарии можно оставлять только для опубликованных событий
+        if (!event.getState().equals(State.PUBLISHED))
+            throw new BadRequestException("Event with id=" + event.getId() + " must be published");
+
+        // комментарии может оставлять либо инициатор, либо пользователь, которому одобрили запрос
+        if (event.getInitiator() != user && requestRepository.findByRequesterIdAndEventId(user.getId(), event.getId())
+                .filter(o -> o.getStatus() == Status.CONFIRMED).isEmpty()) {
+            throw new BadRequestException("User with id=" + user.getId() + " cannot work with comments");
+        }
+    }
+
+    private void updateComment(Comment comment, UpdateCommentDto updateCommentDto) {
+        if (updateCommentDto.getText() != null && !updateCommentDto.getText().isBlank()) {
+            comment.setText(updateCommentDto.getText());
+        }
+    }
+
     private void updateFields(Event event, UpdateEventFieldsEntity updateEventFieldsEntity) {
         if (updateEventFieldsEntity.hasEventDate()) {
             if (updateEventFieldsEntity.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -332,6 +410,11 @@ public class EventServiceImpl implements EventService {
     private Event receiveEvent(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+    }
+
+    private Comment receiveComment(long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("Comment with id=" + commentId + " was not found"));
     }
 
     private void checkValidUserForEvent(User user, Event event) {

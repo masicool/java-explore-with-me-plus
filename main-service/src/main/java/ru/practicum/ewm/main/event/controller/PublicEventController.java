@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.main.event.dto.CommentFullDto;
 import ru.practicum.ewm.main.event.dto.EventFullDto;
 import ru.practicum.ewm.main.event.dto.EventShortDto;
 import ru.practicum.ewm.main.event.dto.FindAllEventsPublicParamEntity;
@@ -58,5 +59,19 @@ public class PublicEventController {
         EndpointHitDto endpointHitDto = new EndpointHitDto("main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now());
         statClient.hit(endpointHitDto);
         return eventService.findEvent(id);
+    }
+
+    @GetMapping("/comment/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CommentFullDto findComment(@PathVariable long id) {
+        return eventService.findComment(id);
+    }
+
+    @GetMapping("/{id}/comment")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CommentFullDto> findAllEventComments(@PathVariable long id,
+                                                     @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                                     @RequestParam(defaultValue = "10") @Positive int size) {
+        return eventService.findAllEventComments(id, from, size);
     }
 }

@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.event.dto.EventFullDto;
-import ru.practicum.ewm.main.event.dto.FindAllEventsParamEntity;
-import ru.practicum.ewm.main.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.ewm.main.event.dto.*;
 import ru.practicum.ewm.main.event.model.State;
 import ru.practicum.ewm.main.event.service.EventService;
 
@@ -41,5 +39,24 @@ public class AdminEventController {
     public EventFullDto editEvent(@PathVariable long eventId,
                                   @RequestBody @Valid UpdateEventAdminRequestDto updateEventAdminRequestDto) {
         return eventService.editEvent(eventId, updateEventAdminRequestDto);
+    }
+
+    @PatchMapping("/comment/{commentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CommentFullDto updateComment(@PathVariable long commentId,
+                                        @Valid @RequestParam UpdateCommentDto updateCommentDto) {
+        return eventService.updateCommentAdmin(commentId, updateCommentDto);
+    }
+
+    @DeleteMapping("/comment/{commentId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteComment(@PathVariable long commentId) {
+        eventService.deleteCommentAdmin(commentId);
+    }
+
+    @DeleteMapping("/{eventId}/comment")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteAllEventComments(@PathVariable long eventId) {
+        eventService.deleteAllEventCommentsAdmin(eventId);
     }
 }
