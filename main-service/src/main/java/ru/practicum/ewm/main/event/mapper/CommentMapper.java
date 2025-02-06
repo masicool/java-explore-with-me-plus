@@ -21,8 +21,6 @@ public class CommentMapper {
     public static CommentFullDto mapToCommentFullDto(Comment comment) {
         CommentFullDto commentFullDto = new CommentFullDto();
         commentFullDto.setId(comment.getId());
-        commentFullDto.setAuthor(comment.getAuthor());
-        commentFullDto.setEvent(comment.getEvent());
         commentFullDto.setText(comment.getText());
         commentFullDto.setCreated(comment.getCreated());
         commentFullDto.setLastUpdate(comment.getLastUpdate());
