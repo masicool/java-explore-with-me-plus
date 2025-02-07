@@ -204,71 +204,66 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public CommentFullDto updateComment(long userId, long eventId, long commentId, UpdateCommentDto updateCommentDto) {
-        Comment comment = receiveComment(commentId);
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
-        // инициатор также может редактировать комментарии
-        checkValidEventStatusAndRequester(event, user);
-        updateComment(comment, updateCommentDto);
+        Comment comment = receiveComment(commentId);
+        checkValidRequester(event, user, comment);
+        comment.setText(updateCommentDto.getText());
         return CommentMapper.mapToCommentFullDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentFullDto updateCommentAdmin(long commentId, UpdateCommentDto updateCommentDto) {
         Comment comment = receiveComment(commentId);
-        updateComment(comment, updateCommentDto);
+        comment.setText(updateCommentDto.getText());
         return CommentMapper.mapToCommentFullDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentFullDto findComment(long commentId) {
-        Comment comment = receiveComment(commentId);
-        return CommentMapper.mapToCommentFullDto(comment);
+        return CommentMapper.mapToCommentFullDto(receiveComment(commentId));
     }
 
     @Override
     public List<CommentFullDto> findAllEventComments(long eventId, int from, int size) {
         PageRequest page = PageRequest.of(from, size);
-        return CommentMapper.mapToCommentFullDto(commentRepository.findAllByEventId(eventId, page));
+        return commentRepository.findAllByEventId(eventId, page).stream().map(CommentMapper::mapToCommentFullDto).toList();
     }
 
     @Override
     public void deleteCommentAdmin(long commentId) {
-        receiveComment(commentId);
         commentRepository.deleteById(commentId);
     }
 
     @Override
     public void deleteComment(long userId, long eventId, long commentId) {
-        receiveComment(commentId);
         User user = receiveUser(userId);
         Event event = receiveEvent(eventId);
-        // инициатор также может удалять комментарии
-        checkValidEventStatusAndRequester(event, user);
+        Comment comment = receiveComment(commentId);
+        checkValidRequester(event, user, comment);
         commentRepository.deleteById(commentId);
     }
 
     @Override
     public void deleteAllEventCommentsAdmin(long eventId) {
-        receiveEvent(eventId);
         commentRepository.deleteAllByEventId(eventId);
     }
 
     private void checkValidEventStatusAndRequester(Event event, User user) {
-        // комментарии можно оставлять только для опубликованных событий
-        if (!event.getState().equals(State.PUBLISHED))
+        if (event.getState() != State.PUBLISHED) {
             throw new BadRequestException("Event with id=" + event.getId() + " must be published");
-
-        // комментарии может оставлять либо инициатор, либо пользователь, которому одобрили запрос
-        if (event.getInitiator() != user && requestRepository.findByRequesterIdAndEventId(user.getId(), event.getId())
-                .filter(o -> o.getStatus() == Status.CONFIRMED).isEmpty()) {
-            throw new BadRequestException("User with id=" + user.getId() + " cannot work with comments");
+        }
+        if (event.isRequestModeration() || event.getParticipantLimit() != 0) {
+            if (!event.getInitiator().equals(user) && requestRepository.findByRequesterIdAndEventId(user.getId(), event.getId())
+                    .filter(o -> o.getStatus() == Status.CONFIRMED).isEmpty()) {
+                throw new BadRequestException("User with id=" + user.getId() + " cannot work with comments");
+            }
         }
     }
 
-    private void updateComment(Comment comment, UpdateCommentDto updateCommentDto) {
-        if (updateCommentDto.getText() != null && !updateCommentDto.getText().isBlank()) {
-            comment.setText(updateCommentDto.getText());
+    private void checkValidRequester(Event event, User user, Comment comment) {
+        if (!comment.getAuthor().equals(user) && !event.getInitiator().equals(user)) {
+            throw new BadRequestException("User " + user.getId() + " cannot delete a comment " + comment.getId() + " that is not his own.");
         }
     }
 

@@ -20,21 +20,21 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id; // уникальный идентификатор комментария
+    long id;
 
-    String text; // текст комментария
+    String text;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
-    Event event; // событие, к которому относится комментарий
+    Event event;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    User author; // автор комментария
+    User author;
 
     @CreationTimestamp
-    LocalDateTime created; // дата создания комментария
+    LocalDateTime created;
 
     @UpdateTimestamp
-    LocalDateTime lastUpdate; // дата создания комментария
+    LocalDateTime lastUpdate;
 }

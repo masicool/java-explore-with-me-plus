@@ -67,11 +67,11 @@ public class PublicEventController {
         return eventService.findComment(id);
     }
 
-    @GetMapping("/{id}/comment")
+    @GetMapping("/{eventId}/comment")
     @ResponseStatus(HttpStatus.OK)
-    public List<CommentFullDto> findAllEventComments(@PathVariable long id,
+    public List<CommentFullDto> findAllEventComments(@PathVariable long eventId,
                                                      @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                      @RequestParam(defaultValue = "10") @Positive int size) {
-        return eventService.findAllEventComments(id, from, size);
+        return eventService.findAllEventComments(eventId, from, size);
     }
 }

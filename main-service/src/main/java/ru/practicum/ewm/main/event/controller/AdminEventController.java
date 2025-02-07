@@ -44,18 +44,18 @@ public class AdminEventController {
     @PatchMapping("/comment/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public CommentFullDto updateComment(@PathVariable long commentId,
-                                        @Valid @RequestParam UpdateCommentDto updateCommentDto) {
+                                        @Valid @RequestBody UpdateCommentDto updateCommentDto) {
         return eventService.updateCommentAdmin(commentId, updateCommentDto);
     }
 
     @DeleteMapping("/comment/{commentId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable long commentId) {
         eventService.deleteCommentAdmin(commentId);
     }
 
     @DeleteMapping("/{eventId}/comment")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllEventComments(@PathVariable long eventId) {
         eventService.deleteAllEventCommentsAdmin(eventId);
     }

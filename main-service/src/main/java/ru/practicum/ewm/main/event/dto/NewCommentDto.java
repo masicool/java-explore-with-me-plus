@@ -13,5 +13,5 @@ import lombok.experimental.FieldDefaults;
 public class NewCommentDto {
     @NotBlank(message = "Field 'text' cannot be null, empty or blank")
     @Size(min = 2, max = 1000, message = "Length of field 'annotation' should be in the range from 2 to 1000")
-    String text; // текст комментария
+    String text;
 }

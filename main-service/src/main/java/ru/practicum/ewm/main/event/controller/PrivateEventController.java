@@ -51,7 +51,7 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentFullDto addComment(@PathVariable long userId,
                                      @PathVariable long eventId,
-                                     @Valid @RequestParam NewCommentDto newCommentDto) {
+                                     @Valid @RequestBody NewCommentDto newCommentDto) {
         return eventService.addComment(userId, eventId, newCommentDto);
     }
 
@@ -60,12 +60,12 @@ public class PrivateEventController {
     public CommentFullDto updateComment(@PathVariable long userId,
                                         @PathVariable long eventId,
                                         @PathVariable long commentId,
-                                        @Valid @RequestParam UpdateCommentDto updateCommentDto) {
+                                        @Valid @RequestBody UpdateCommentDto updateCommentDto) {
         return eventService.updateComment(userId, eventId, commentId, updateCommentDto);
     }
 
     @DeleteMapping("/{eventId}/comment/{commentId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable long userId,
                               @PathVariable long eventId,
                               @PathVariable long commentId) {
