@@ -465,7 +465,7 @@
 									"\r",
 									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
 									"    pm.expect(target.id).to.not.be.null;\r",
-									"    pm.expect(target.text.toString()).equal(source.text.toString(), 'Текст комментария должно соответствовать тексту комментария в запросе');\r",
+									"    pm.expect(target.text).equal(source.text, 'Текст комментария должно соответствовать тексту комментария в запросе');\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -581,7 +581,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
-									"    pm.expect(target.text.toString()).equal(source.text.toString(), 'Текст комментария должно соответствовать искомому комментарию')\r",
+									"    pm.expect(target.text).equal(source.text, 'Текст комментария должно соответствовать искомому комментарию')\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -721,7 +721,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
-									"    pm.expect(target.text.toString()).equal(source.text.toString(), 'Текст комментария должно соответствовать искомому комментарию')\r",
+									"    pm.expect(target.text).equal(source.text, 'Текст комментария должно соответствовать искомому комментарию')\r",
 									"});"
 								],
 								"type": "text/javascript",
