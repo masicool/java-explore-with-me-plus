@@ -836,7 +836,7 @@
 									"    pm.expect(source).to.have.property('author');\r",
 									"    pm.expect(source).to.have.property('created');\r",
 									"    pm.expect(source).to.have.property('lastUpdate');\r",
-									"    pm.expect(source.id).to.eql(commentId);\r",
+									"    pm.expect(source.id.toString()).to.equal(commentId.toString()); \r",
 									"});\r",
 									"let body\r",
 									"const req = {\r",
