@@ -46,29 +46,4 @@ public class PrivateEventController {
                                                @RequestParam(defaultValue = "10") @Positive int size) {
         return eventService.findOwnersEvents(userId, from, size);
     }
-
-    @PostMapping("/{eventId}/comment")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommentFullDto addComment(@PathVariable long userId,
-                                     @PathVariable long eventId,
-                                     @Valid @RequestBody NewCommentDto newCommentDto) {
-        return eventService.addComment(userId, eventId, newCommentDto);
-    }
-
-    @PatchMapping("/{eventId}/comment/{commentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public CommentFullDto updateComment(@PathVariable long userId,
-                                        @PathVariable long eventId,
-                                        @PathVariable long commentId,
-                                        @Valid @RequestBody UpdateCommentDto updateCommentDto) {
-        return eventService.updateComment(userId, eventId, commentId, updateCommentDto);
-    }
-
-    @DeleteMapping("/{eventId}/comment/{commentId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable long userId,
-                              @PathVariable long eventId,
-                              @PathVariable long commentId) {
-        eventService.deleteComment(userId, eventId, commentId);
-    }
 }

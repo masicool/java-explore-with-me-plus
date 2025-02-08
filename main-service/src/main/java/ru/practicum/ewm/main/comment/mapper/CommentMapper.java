@@ -1,13 +1,11 @@
-package ru.practicum.ewm.main.event.mapper;
+package ru.practicum.ewm.main.comment.mapper;
 
-import ru.practicum.ewm.main.event.dto.CommentFullDto;
-import ru.practicum.ewm.main.event.dto.NewCommentDto;
-import ru.practicum.ewm.main.event.model.Comment;
+import ru.practicum.ewm.main.comment.dto.CommentFullDto;
+import ru.practicum.ewm.main.comment.dto.NewCommentDto;
+import ru.practicum.ewm.main.comment.model.Comment;
 import ru.practicum.ewm.main.event.model.Event;
 import ru.practicum.ewm.main.user.UserMapper;
 import ru.practicum.ewm.main.user.model.User;
-
-import java.time.LocalDateTime;
 
 public class CommentMapper {
     public static Comment mapToComment(Event event, User user, NewCommentDto newCommentDto) {
@@ -15,7 +13,6 @@ public class CommentMapper {
         comment.setText(newCommentDto.getText());
         comment.setAuthor(user);
         comment.setEvent(event);
-        comment.setCreated(LocalDateTime.now());
         return comment;
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.main.event.dto;
+package ru.practicum.ewm.main.comment.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
