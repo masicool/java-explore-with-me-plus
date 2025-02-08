@@ -117,7 +117,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -126,7 +126,7 @@
 								":userId",
 								"events",
 								":eventId",
-								"comment"
+								"comments"
 							],
 							"variable": [
 								{
@@ -258,7 +258,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -267,7 +267,7 @@
 								":userId",
 								"events",
 								":eventId",
-								"comment"
+								"comments"
 							],
 							"variable": [
 								{
@@ -365,14 +365,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/events/:id/comment?from=0&size=1000",
+							"raw": "{{baseUrl}}/comments/events/:id?from=0&size=1000",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
+								"comments",
 								"events",
-								":id",
-								"comment"
+								":id"
 							],
 							"query": [
 								{
@@ -483,13 +483,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/events/comment/:id",
+							"raw": "{{baseUrl}}/comments/:id",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"comment",
+								"comments",
 								":id"
 							],
 							"variable": [
@@ -613,7 +612,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -622,7 +621,7 @@
 								":userId",
 								"events",
 								":eventId",
-								"comment",
+								"comments",
 								":commentId"
 							],
 							"variable": [
@@ -753,14 +752,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+							"raw": "{{baseUrl}}/admin/comments/:commentId",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"admin",
-								"events",
-								"comment",
+								"comments",
 								":commentId"
 							],
 							"variable": [
@@ -777,6 +775,41 @@
 				{
 					"name": "Удаление комментария администратором",
 					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"const source = JSON.parse(pm.collectionVariables.get(\"response\"));\r",
+									"const commentId = pm.collectionVariables.get(\"cid\");\r",
+									"\r",
+									"pm.test(\"Комментарий должен быть найден до выполнения запроса\", function(){\r",
+									"    pm.expect(source).to.have.property('id');\r",
+									"    pm.expect(source).to.have.property('text');\r",
+									"    pm.expect(source).to.have.property('author');\r",
+									"    pm.expect(source).to.have.property('created');\r",
+									"    pm.expect(source).to.have.property('lastUpdate');\r",
+									"    pm.expect(source.id.toString()).to.equal(commentId.toString()); \r",
+									"});\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/comments/\" + pm.collectionVariables.get(\"cid\"),\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Комментарий должен быть удалён после выполнения запроса\", function(){\r",
+									"        pm.expect(response.code).to.equal(404); \r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
 						{
 							"listen": "prerequest",
 							"script": {
@@ -819,55 +852,19 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"const source = JSON.parse(pm.collectionVariables.get(\"response\"));\r",
-									"const commentId = pm.collectionVariables.get(\"cid\");\r",
-									"\r",
-									"pm.test(\"Комментарий должен быть найден до выполнения запроса\", function(){\r",
-									"    pm.expect(source).to.have.property('id');\r",
-									"    pm.expect(source).to.have.property('text');\r",
-									"    pm.expect(source).to.have.property('author');\r",
-									"    pm.expect(source).to.have.property('created');\r",
-									"    pm.expect(source).to.have.property('lastUpdate');\r",
-									"    pm.expect(source.id.toString()).to.equal(commentId.toString()); \r",
-									"});\r",
-									"let body\r",
-									"const req = {\r",
-									"                url: \"http://localhost:8080/events/comment/\" + pm.collectionVariables.get(\"cid\"),\r",
-									"                method: \"GET\",\r",
-									"                body: body == null ? \"\" : JSON.stringify(body),\r",
-									"                header: { \"Content-Type\": \"application/json\" },\r",
-									"            };\r",
-									"pm.sendRequest(req, (error, response) => {\r",
-									"    pm.test(\"Комментарий должен быть удалён после выполнения запроса\", function(){\r",
-									"        pm.expect(response.code).to.equal(404); \r",
-									"    });\r",
-									"})"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
 						}
 					],
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+							"raw": "{{baseUrl}}/admin/comments/:commentId",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"admin",
-								"events",
-								"comment",
+								"comments",
 								":commentId"
 							],
 							"variable": [
@@ -945,7 +942,7 @@
 									"});\r",
 									"let body\r",
 									"const req = {\r",
-									"                url: \"http://localhost:8080/events/\" + pm.collectionVariables.get(\"eid\") + \"/comment\",\r",
+									"                url: \"http://localhost:8080/comments/events/\" + pm.collectionVariables.get(\"eid\"),\r",
 									"                method: \"GET\",\r",
 									"                body: body == null ? \"\" : JSON.stringify(body),\r",
 									"                header: { \"Content-Type\": \"application/json\" },\r",
@@ -965,21 +962,273 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/admin/events/:eventId/comment",
+							"raw": "{{baseUrl}}/admin/comments/events/:eventId",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"admin",
+								"comments",
 								"events",
-								":eventId",
-								"comment"
+								":eventId"
 							],
 							"variable": [
 								{
 									"key": "eventId",
 									"value": "{{eid}}",
 									"description": "(Required) id события"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаление комментария пользователем",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"const source = JSON.parse(pm.collectionVariables.get(\"response\"));\r",
+									"const commentId = pm.collectionVariables.get(\"cid\");\r",
+									"\r",
+									"pm.test(\"Комментарий должен быть найден до выполнения запроса\", function(){\r",
+									"    pm.expect(source).to.have.property('id');\r",
+									"    pm.expect(source).to.have.property('text');\r",
+									"    pm.expect(source).to.have.property('author');\r",
+									"    pm.expect(source).to.have.property('created');\r",
+									"    pm.expect(source).to.have.property('lastUpdate');\r",
+									"    pm.expect(source.id.toString()).to.equal(commentId.toString()); \r",
+									"});\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/comments/\" + pm.collectionVariables.get(\"cid\"),\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Комментарий должен быть удалён после выполнения запроса\", function(){\r",
+									"        pm.expect(response.code).to.equal(404); \r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const userInitiatorEvent = await api.addUser(rnd.getUser());\r",
+									"        const userComment = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uid\", userComment.id);\r",
+									"        \r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventModel = rnd.getEvent(category.id);\r",
+									"        eventModel.participantLimit = 0;\r",
+									"        eventModel.requestModeration = false;\r",
+									"        let event = await api.addEvent(userInitiatorEvent.id, eventModel);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id)\r",
+									"\r",
+									"        const сomment = await api.addComment(userComment.id, event.id, rnd.getComment());\r",
+									"        pm.collectionVariables.set(\"cid\", сomment.id);\r",
+									"\r",
+									"        const foundedComment = await api.findComment(сomment.id);\r",
+									"        pm.collectionVariables.set(\"response\", JSON.stringify(foundedComment))\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId",
+								"events",
+								":eventId",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uid}}",
+									"description": "(Required) id пользователя"
+								},
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cid}}",
+									"description": "(Required) id комменатрия"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удаление комментария пользователя инициатором события",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"const source = JSON.parse(pm.collectionVariables.get(\"response\"));\r",
+									"const commentId = pm.collectionVariables.get(\"cid\");\r",
+									"\r",
+									"pm.test(\"Комментарий должен быть найден до выполнения запроса\", function(){\r",
+									"    pm.expect(source).to.have.property('id');\r",
+									"    pm.expect(source).to.have.property('text');\r",
+									"    pm.expect(source).to.have.property('author');\r",
+									"    pm.expect(source).to.have.property('created');\r",
+									"    pm.expect(source).to.have.property('lastUpdate');\r",
+									"    pm.expect(source.id.toString()).to.equal(commentId.toString()); \r",
+									"});\r",
+									"let body\r",
+									"const req = {\r",
+									"                url: \"http://localhost:8080/comments/\" + pm.collectionVariables.get(\"cid\"),\r",
+									"                method: \"GET\",\r",
+									"                body: body == null ? \"\" : JSON.stringify(body),\r",
+									"                header: { \"Content-Type\": \"application/json\" },\r",
+									"            };\r",
+									"pm.sendRequest(req, (error, response) => {\r",
+									"    pm.test(\"Комментарий должен быть удалён после выполнения запроса\", function(){\r",
+									"        pm.expect(response.code).to.equal(404); \r",
+									"    });\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    try {\r",
+									"        const userInitiatorEvent = await api.addUser(rnd.getUser());\r",
+									"        const userComment = await api.addUser(rnd.getUser());\r",
+									"        pm.collectionVariables.set(\"uinid\", userInitiatorEvent.id);\r",
+									"        \r",
+									"        const category = await api.addCategory(rnd.getCategory());\r",
+									"        let eventModel = rnd.getEvent(category.id);\r",
+									"        eventModel.participantLimit = 0;\r",
+									"        eventModel.requestModeration = false;\r",
+									"        let event = await api.addEvent(userInitiatorEvent.id, eventModel);\r",
+									"        event = await api.publishEvent(event.id);\r",
+									"        pm.collectionVariables.set(\"eid\", event.id)\r",
+									"\r",
+									"        const сomment = await api.addComment(userComment.id, event.id, rnd.getComment());\r",
+									"        pm.collectionVariables.set(\"cid\", сomment.id);\r",
+									"\r",
+									"        const foundedComment = await api.findComment(сomment.id);\r",
+									"        pm.collectionVariables.set(\"response\", JSON.stringify(foundedComment))\r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":userId",
+								"events",
+								":eventId",
+								"comments",
+								":commentId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{uinid}}",
+									"description": "(Required) id пользователя"
+								},
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								},
+								{
+									"key": "commentId",
+									"value": "{{cid}}",
+									"description": "(Required) id комменатрия"
 								}
 							]
 						}
@@ -1074,26 +1323,14 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/events/:id/comment",
+									"raw": "{{baseUrl}}/comments/events/:id",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
+										"comments",
 										"events",
-										":id",
-										"comment"
-									],
-									"query": [
-										{
-											"key": "from",
-											"value": "0",
-											"disabled": true
-										},
-										{
-											"key": "size",
-											"value": "1000",
-											"disabled": true
-										}
+										":id"
 									],
 									"variable": [
 										{
@@ -1205,7 +1442,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1214,7 +1451,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -1329,7 +1566,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1338,7 +1575,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -1456,14 +1693,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+									"raw": "{{baseUrl}}/admin/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"admin",
-										"events",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -1571,7 +1807,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1580,7 +1816,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -1695,7 +1931,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1704,7 +1940,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -1822,14 +2058,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+									"raw": "{{baseUrl}}/admin/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"admin",
-										"events",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -1937,7 +2172,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1946,7 +2181,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -2061,7 +2296,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2070,7 +2305,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -2188,14 +2423,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+									"raw": "{{baseUrl}}/admin/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"admin",
-										"events",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -2307,7 +2541,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2316,7 +2550,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -2426,7 +2660,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2435,7 +2669,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -2544,7 +2778,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2553,7 +2787,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -2668,7 +2902,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2677,7 +2911,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -2790,7 +3024,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2799,7 +3033,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -2919,7 +3153,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -2928,7 +3162,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3048,7 +3282,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3057,7 +3291,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3178,7 +3412,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3187,7 +3421,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3279,7 +3513,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3288,7 +3522,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3381,7 +3615,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3390,7 +3624,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3483,7 +3717,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3492,7 +3726,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3586,7 +3820,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3595,7 +3829,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3718,7 +3952,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3727,7 +3961,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -3842,7 +4076,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3851,7 +4085,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -3969,14 +4203,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+									"raw": "{{baseUrl}}/admin/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"admin",
-										"events",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -4084,7 +4317,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -4093,7 +4326,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment"
+										"comments"
 									],
 									"variable": [
 										{
@@ -4208,7 +4441,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comment/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -4217,7 +4450,7 @@
 										":userId",
 										"events",
 										":eventId",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -4335,14 +4568,13 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/admin/events/comment/:commentId",
+									"raw": "{{baseUrl}}/admin/comments/:commentId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"admin",
-										"events",
-										"comment",
+										"comments",
 										":commentId"
 									],
 									"variable": [
@@ -4435,21 +4667,16 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/events/:id/comment?size=1000",
+									"raw": "{{baseUrl}}/comments/events/:id?size=1000",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
+										"comments",
 										"events",
-										":id",
-										"comment"
+										":id"
 									],
 									"query": [
-										{
-											"key": "from",
-											"value": "0",
-											"disabled": true
-										},
 										{
 											"key": "size",
 											"value": "1000"
@@ -4546,24 +4773,19 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/events/:id/comment?from=0",
+									"raw": "{{baseUrl}}/comments/events/:id?from=0",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
+										"comments",
 										"events",
-										":id",
-										"comment"
+										":id"
 									],
 									"query": [
 										{
 											"key": "from",
 											"value": "0"
-										},
-										{
-											"key": "size",
-											"value": "1000",
-											"disabled": true
 										}
 									],
 									"variable": [
@@ -4613,7 +4835,7 @@
 					"    }\r",
 					"\r",
 					"    async addComment(userId, eventId, comment, verbose=null) {\r",
-					"        return this.post(\"/users/\" + userId + \"/events/\" + eventId + \"/comment\", comment, \"Ошибка при добавлении нового комментария: \", verbose);\r",
+					"        return this.post(\"/users/\" + userId + \"/events/\" + eventId + \"/comments\", comment, \"Ошибка при добавлении нового комментария: \", verbose);\r",
 					"    }\r",
 					"\r",
 					"    async publishParticipationRequest(eventId, userId, verbose=null) {\r",
@@ -4649,11 +4871,11 @@
 					"    }\r",
 					"\r",
 					"    async findComment(commentId, verbose=null) {\r",
-					"        return this.get('/events/comment/' + commentId, null, \"Ошибка при поиске комментария по id\", verbose);\r",
+					"        return this.get('/comments/' + commentId, null, \"Ошибка при поиске комментария по id\", verbose);\r",
 					"    }\r",
 					"\r",
 					"    async findComments(eventId, verbose=null) {\r",
-					"        return this.get('/events/' + eventId + '/comment', null, \"Ошибка при поиске комментариев по eventId\", verbose);\r",
+					"        return this.get('/comments/events/' + eventId, null, \"Ошибка при поиске комментариев по eventId\", verbose);\r",
 					"    }\r",
 					"\r",
 					"    async post(path, body, errorText = \"Ошибка при выполнении post-запроса: \", verbose=null) {\r",
