@@ -28,9 +28,9 @@ public class AdminCommentController {
         commentService.deleteCommentAdmin(commentId);
     }
 
-    @DeleteMapping("/events/{eventId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllEventComments(@PathVariable long eventId) {
+    public void deleteAllEventComments(@RequestParam long eventId) {
         commentService.deleteAllEventCommentsAdmin(eventId);
     }
 }

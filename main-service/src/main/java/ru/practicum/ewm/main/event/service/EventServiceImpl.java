@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.category.model.Category;
 import ru.practicum.ewm.main.category.repository.CategoryRepository;
+import ru.practicum.ewm.main.comment.model.Comment;
 import ru.practicum.ewm.main.comment.repository.CommentRepository;
 import ru.practicum.ewm.main.event.dto.*;
 import ru.practicum.ewm.main.event.mapper.EventMapper;
@@ -99,10 +100,9 @@ public class EventServiceImpl implements EventService {
     public List<EventFullDto> findOwnersEvents(long userId, int from, int size) {
         User user = receiveUser(userId);
         PageRequest page = PageRequest.of(from, size);
-        List<EventFullDto> events = eventRepository.findAllByInitiatorId(user.getId(), page).stream()
+        return loadStatisticAndRequestForList(eventRepository.findAllByInitiatorId(user.getId(), page).stream()
                 .map(EventMapper::mapToEventFullDto)
-                .toList();
-        return loadStatisticAndRequestForList(events);
+                .toList());
     }
 
     @Override
@@ -110,10 +110,9 @@ public class EventServiceImpl implements EventService {
     public List<EventFullDto> findAllEvents(FindAllEventsParamEntity findAllEventsParamEntity) {
         Predicate predicate = predicateForFindingAllEventsByAdmin(findAllEventsParamEntity);
         PageRequest page = PageRequest.of(findAllEventsParamEntity.getFrom(), findAllEventsParamEntity.getSize());
-        return eventRepository.findAll(predicate, page).stream()
+        return loadStatisticAndRequestForList(eventRepository.findAll(predicate, page).stream()
                 .map(EventMapper::mapToEventFullDto)
-                .peek(this::loadStatisticAndRequest)
-                .toList();
+                .toList());
     }
 
     @Override
@@ -167,9 +166,7 @@ public class EventServiceImpl implements EventService {
                     .filter(this::isEventAvailableByLimit)
                     .toList();
         }
-        List<EventShortDto> eventShortDtos = events.stream()
-                .map(this::loadStatisticAndRequest)
-                .toList();
+        List<EventShortDto> eventShortDtos = loadStatisticAndRequest(events);
         if (findAllEventsPublicParamEntity.getSort() != null) {
             switch (findAllEventsPublicParamEntity.getSort()) {
                 case EVENT_DATE -> eventShortDtos = eventShortDtos.stream()
@@ -228,13 +225,37 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private EventShortDto loadStatisticAndRequest(Event event) {
-        long amountOfConfirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
-        long amountOfViews = statClient.getStat(event.getCreated(), LocalDateTime.now(), List.of("/events/" + event.getId()), true).stream()
-                .map(ViewStatsDto::getHits)
-                .reduce(0L, Long::sum);
-        long amountOfComments = commentRepository.countByEventId(event.getId());
-        return EventMapper.mapToEventShortDto(event, amountOfConfirmedRequests, amountOfViews, amountOfComments);
+    private List<EventShortDto> loadStatisticAndRequest(List<Event> events) {
+        if (events == null || events.isEmpty()) {
+            return List.of();
+        }
+        LocalDateTime start = events.stream()
+                .map(Event::getCreated)
+                .min(LocalDateTime::compareTo)
+                .get();
+        List<String> uris = events.stream()
+                .map(event -> "/events/" + event.getId())
+                .toList();
+        List<Request> requests = requestRepository.findByEventIdInAndStatus(events.stream()
+                .map(Event::getId)
+                .toList(), Status.CONFIRMED);
+        List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
+        List<Comment> comments = commentRepository.findByEventIdIn(events.stream()
+                .map(Event::getId)
+                .toList());
+        return events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .peek(event -> event.setConfirmedRequests(requests.stream()
+                        .filter(request -> request.getEvent().getId() == event.getId())
+                        .count()))
+                .peek(event -> event.setViews(viewStats.stream()
+                        .filter(view -> view.getUri().equals("/events/" + event.getId()))
+                        .map(ViewStatsDto::getHits)
+                        .reduce(0L, Long::sum)))
+                .peek(event -> event.setComments(comments.stream()
+                        .filter(comment -> comment.getEvent().getId() == event.getId())
+                        .count()))
+                .toList();
     }
 
     private EventFullDto loadStatisticAndRequest(EventFullDto event) {
@@ -260,10 +281,13 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> "/events/" + event.getId())
                 .toList();
-        List<Request> requests = requestRepository.findByEventIdIn(events.stream()
+        List<Request> requests = requestRepository.findByEventIdInAndStatus(events.stream()
+                .map(EventFullDto::getId)
+                .toList(), Status.CONFIRMED);
+        List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
+        List<Comment> comments = commentRepository.findByEventIdIn(events.stream()
                 .map(EventFullDto::getId)
                 .toList());
-        List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
         return events.stream()
                 .peek(event -> event.setConfirmedRequests(requests.stream()
                         .filter(request -> request.getEvent().getId() == event.getId())
@@ -272,7 +296,9 @@ public class EventServiceImpl implements EventService {
                         .filter(view -> view.getUri().equals("/events/" + event.getId()))
                         .map(ViewStatsDto::getHits)
                         .reduce(0L, Long::sum)))
-                .peek(event -> event.setComments(commentRepository.countByEventId(event.getId())))
+                .peek(event -> event.setComments(comments.stream()
+                        .filter(comment -> comment.getEvent().getId() == event.getId())
+                        .count()))
                 .toList();
     }
 

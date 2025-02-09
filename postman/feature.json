@@ -117,27 +117,27 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+							"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":userId",
-								"events",
-								":eventId",
 								"comments"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								}
 							],
 							"variable": [
 								{
 									"key": "userId",
 									"value": "{{uinid}}",
 									"description": "(Required) id пользователя"
-								},
-								{
-									"key": "eventId",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								}
 							]
 						}
@@ -258,27 +258,27 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+							"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":userId",
-								"events",
-								":eventId",
 								"comments"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								}
 							],
 							"variable": [
 								{
 									"key": "userId",
 									"value": "{{uid}}",
 									"description": "(Required) id пользователя"
-								},
-								{
-									"key": "eventId",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								}
 							]
 						}
@@ -365,32 +365,27 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/comments/events/:id?from=0&size=1000",
+							"raw": "{{baseUrl}}/comments?eventId={{eid}}&from=0&size=1000",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"comments",
-								"events",
-								":id"
+								"comments"
 							],
 							"query": [
 								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								},
+								{
 									"key": "from",
-									"value": "0",
-									"description": "количество элементов, которые нужно пропустить для формирования текущего набора"
+									"value": "0"
 								},
 								{
 									"key": "size",
 									"value": "1000",
 									"description": "количество элементов в наборе"
-								}
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								}
 							]
 						}
@@ -612,28 +607,28 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+							"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":userId",
-								"events",
-								":eventId",
 								"comments",
 								":commentId"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								}
 							],
 							"variable": [
 								{
 									"key": "userId",
 									"value": "{{uid}}",
 									"description": "(Required) id пользователя"
-								},
-								{
-									"key": "eventId",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								},
 								{
 									"key": "commentId",
@@ -942,7 +937,7 @@
 									"});\r",
 									"let body\r",
 									"const req = {\r",
-									"                url: \"http://localhost:8080/comments/events/\" + pm.collectionVariables.get(\"eid\"),\r",
+									"                url: \"http://localhost:8080/comments?eventId=\" + pm.collectionVariables.get(\"eid\"),\r",
 									"                method: \"GET\",\r",
 									"                body: body == null ? \"\" : JSON.stringify(body),\r",
 									"                header: { \"Content-Type\": \"application/json\" },\r",
@@ -962,17 +957,15 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/admin/comments/events/:eventId",
+							"raw": "{{baseUrl}}/admin/comments?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"admin",
-								"comments",
-								"events",
-								":eventId"
+								"comments"
 							],
-							"variable": [
+							"query": [
 								{
 									"key": "eventId",
 									"value": "{{eid}}",
@@ -1076,28 +1069,28 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+							"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":userId",
-								"events",
-								":eventId",
 								"comments",
 								":commentId"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								}
 							],
 							"variable": [
 								{
 									"key": "userId",
 									"value": "{{uid}}",
 									"description": "(Required) id пользователя"
-								},
-								{
-									"key": "eventId",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								},
 								{
 									"key": "commentId",
@@ -1202,28 +1195,28 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+							"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":userId",
-								"events",
-								":eventId",
 								"comments",
 								":commentId"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "{{eid}}",
+									"description": "(Required) id события"
+								}
 							],
 							"variable": [
 								{
 									"key": "userId",
 									"value": "{{uinid}}",
 									"description": "(Required) id пользователя"
-								},
-								{
-									"key": "eventId",
-									"value": "{{eid}}",
-									"description": "(Required) id события"
 								},
 								{
 									"key": "commentId",
@@ -1323,18 +1316,16 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/comments/events/:id",
+									"raw": "{{baseUrl}}/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
-										"comments",
-										"events",
-										":id"
+										"comments"
 									],
-									"variable": [
+									"query": [
 										{
-											"key": "id",
+											"key": "eventId",
 											"value": "{{eid}}",
 											"description": "(Required) id события"
 										}
@@ -1442,27 +1433,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -1566,28 +1557,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -1807,27 +1798,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -1931,28 +1922,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -2172,27 +2163,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -2296,28 +2287,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": null,
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -2541,27 +2532,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -2660,27 +2651,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -2778,27 +2769,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -2902,27 +2893,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -3024,28 +3015,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3153,28 +3144,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3282,28 +3273,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3412,28 +3403,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3513,28 +3504,28 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3615,28 +3606,28 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3717,28 +3708,28 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3820,28 +3811,28 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -3952,27 +3943,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -4076,28 +4067,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -4317,27 +4308,27 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+									"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uinid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -4441,28 +4432,28 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments/:commentId",
+									"raw": "{{baseUrl}}/users/:userId/comments/:commentId?eventId={{eid}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"users",
 										":userId",
-										"events",
-										":eventId",
 										"comments",
 										":commentId"
+									],
+									"query": [
+										{
+											"key": "eventId",
+											"value": "{{eid}}",
+											"description": "(Required) id события"
+										}
 									],
 									"variable": [
 										{
 											"key": "userId",
 											"value": "{{uid}}",
 											"description": "(Required) id пользователя"
-										},
-										{
-											"key": "eventId",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										},
 										{
 											"key": "commentId",
@@ -4667,26 +4658,21 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/comments/events/:id?size=1000",
+									"raw": "{{baseUrl}}/comments?eventId={{eid}}&size=1000",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
-										"comments",
-										"events",
-										":id"
+										"comments"
 									],
 									"query": [
 										{
+											"key": "eventId",
+											"value": "{{eid}}"
+										},
+										{
 											"key": "size",
 											"value": "1000"
-										}
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -4773,26 +4759,21 @@
 									}
 								],
 								"url": {
-									"raw": "{{baseUrl}}/comments/events/:id?from=0",
+									"raw": "{{baseUrl}}/comments?eventId={{eid}}&from=0",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
-										"comments",
-										"events",
-										":id"
+										"comments"
 									],
 									"query": [
 										{
+											"key": "eventId",
+											"value": "{{eid}}"
+										},
+										{
 											"key": "from",
 											"value": "0"
-										}
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "{{eid}}",
-											"description": "(Required) id события"
 										}
 									]
 								}
@@ -4835,7 +4816,7 @@
 					"    }\r",
 					"\r",
 					"    async addComment(userId, eventId, comment, verbose=null) {\r",
-					"        return this.post(\"/users/\" + userId + \"/events/\" + eventId + \"/comments\", comment, \"Ошибка при добавлении нового комментария: \", verbose);\r",
+					"        return this.post(\"/users/\" + userId + \"/comments?eventId=\" + eventId, comment, \"Ошибка при добавлении нового комментария: \", verbose);\r",
 					"    }\r",
 					"\r",
 					"    async publishParticipationRequest(eventId, userId, verbose=null) {\r",
@@ -4875,7 +4856,7 @@
 					"    }\r",
 					"\r",
 					"    async findComments(eventId, verbose=null) {\r",
-					"        return this.get('/comments/events/' + eventId, null, \"Ошибка при поиске комментариев по eventId\", verbose);\r",
+					"        return this.get('/comments?eventId=' + eventId, null, \"Ошибка при поиске комментариев по eventId\", verbose);\r",
 					"    }\r",
 					"\r",
 					"    async post(path, body, errorText = \"Ошибка при выполнении post-запроса: \", verbose=null) {\r",
