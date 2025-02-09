@@ -23,9 +23,9 @@ public class PublicCommentController {
         return commentService.findComment(id);
     }
 
-    @GetMapping("/events/{eventId}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CommentFullDto> findAllEventComments(@PathVariable long eventId,
+        public List<CommentFullDto> findAllEventComments(@RequestParam long eventId,
                                                      @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                      @RequestParam(defaultValue = "10") @Positive int size) {
         return commentService.findAllEventComments(eventId, from, size);

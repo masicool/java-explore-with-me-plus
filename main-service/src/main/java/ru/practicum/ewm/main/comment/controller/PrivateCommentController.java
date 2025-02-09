@@ -10,7 +10,7 @@ import ru.practicum.ewm.main.comment.dto.UpdateCommentDto;
 import ru.practicum.ewm.main.comment.service.CommentService;
 
 @RestController
-@RequestMapping("/users/{userId}/events/{eventId}/comments")
+@RequestMapping("/users/{userId}/comments")
 @RequiredArgsConstructor
 public class PrivateCommentController {
 
@@ -19,7 +19,7 @@ public class PrivateCommentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CommentFullDto addComment(@PathVariable long userId,
-                                     @PathVariable long eventId,
+                                     @RequestParam long eventId,
                                      @Valid @RequestBody NewCommentDto newCommentDto) {
         return commentService.addComment(userId, eventId, newCommentDto);
     }
@@ -27,8 +27,8 @@ public class PrivateCommentController {
     @PatchMapping("/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public CommentFullDto updateComment(@PathVariable long userId,
-                                        @PathVariable long eventId,
                                         @PathVariable long commentId,
+                                        @RequestParam long eventId,
                                         @Valid @RequestBody UpdateCommentDto updateCommentDto) {
         return commentService.updateComment(userId, eventId, commentId, updateCommentDto);
     }
@@ -36,8 +36,8 @@ public class PrivateCommentController {
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable long userId,
-                              @PathVariable long eventId,
-                              @PathVariable long commentId) {
+                              @PathVariable long commentId,
+                              @RequestParam long eventId) {
         commentService.deleteComment(userId, eventId, commentId);
     }
 }
