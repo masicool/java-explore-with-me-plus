@@ -166,9 +166,7 @@ public class EventServiceImpl implements EventService {
                     .filter(this::isEventAvailableByLimit)
                     .toList();
         }
-        List<EventShortDto> eventShortDtos = events.stream()
-                .map(this::loadStatisticAndRequest)
-                .toList();
+        List<EventShortDto> eventShortDtos = loadStatisticAndRequest(events);
         if (findAllEventsPublicParamEntity.getSort() != null) {
             switch (findAllEventsPublicParamEntity.getSort()) {
                 case EVENT_DATE -> eventShortDtos = eventShortDtos.stream()
@@ -227,13 +225,37 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private EventShortDto loadStatisticAndRequest(Event event) {
-        long amountOfConfirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), Status.CONFIRMED);
-        long amountOfViews = statClient.getStat(event.getCreated(), LocalDateTime.now(), List.of("/events/" + event.getId()), true).stream()
-                .map(ViewStatsDto::getHits)
-                .reduce(0L, Long::sum);
-        long amountOfComments = commentRepository.countByEventId(event.getId());
-        return EventMapper.mapToEventShortDto(event, amountOfConfirmedRequests, amountOfViews, amountOfComments);
+    private List<EventShortDto> loadStatisticAndRequest(List<Event> events) {
+        if (events == null || events.isEmpty()) {
+            return List.of();
+        }
+        LocalDateTime start = events.stream()
+                .map(Event::getCreated)
+                .min(LocalDateTime::compareTo)
+                .get();
+        List<String> uris = events.stream()
+                .map(event -> "/events/" + event.getId())
+                .toList();
+        List<Request> requests = requestRepository.findByEventIdInAndStatus(events.stream()
+                .map(Event::getId)
+                .toList(), Status.CONFIRMED);
+        List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
+        List<Comment> comments = commentRepository.findByEventIdIn(events.stream()
+                .map(Event::getId)
+                .toList());
+        return events.stream()
+                .map(EventMapper::mapToEventShortDto)
+                .peek(event -> event.setConfirmedRequests(requests.stream()
+                        .filter(request -> request.getEvent().getId() == event.getId())
+                        .count()))
+                .peek(event -> event.setViews(viewStats.stream()
+                        .filter(view -> view.getUri().equals("/events/" + event.getId()))
+                        .map(ViewStatsDto::getHits)
+                        .reduce(0L, Long::sum)))
+                .peek(event -> event.setComments(comments.stream()
+                        .filter(comment -> comment.getEvent().getId() == event.getId())
+                        .count()))
+                .toList();
     }
 
     private EventFullDto loadStatisticAndRequest(EventFullDto event) {
@@ -259,9 +281,9 @@ public class EventServiceImpl implements EventService {
         List<String> uris = events.stream()
                 .map(event -> "/events/" + event.getId())
                 .toList();
-        List<Request> requests = requestRepository.findByEventIdIn(events.stream()
+        List<Request> requests = requestRepository.findByEventIdInAndStatus(events.stream()
                 .map(EventFullDto::getId)
-                .toList());
+                .toList(), Status.CONFIRMED);
         List<ViewStatsDto> viewStats = statClient.getStat(start, LocalDateTime.now(), uris, true);
         List<Comment> comments = commentRepository.findByEventIdIn(events.stream()
                 .map(EventFullDto::getId)

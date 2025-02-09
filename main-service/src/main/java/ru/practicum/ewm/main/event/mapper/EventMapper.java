@@ -57,18 +57,18 @@ public class EventMapper {
         return dto;
     }
 
-    public static EventShortDto mapToEventShortDto(Event event, long amountOfConfirmedRequests, long amountOfViews, long amountOfComments) {
+    public static EventShortDto mapToEventShortDto(Event event) {
         EventShortDto dto = new EventShortDto();
         dto.setAnnotation(event.getAnnotation());
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
-        dto.setConfirmedRequests(amountOfConfirmedRequests);
+        dto.setConfirmedRequests(0);
         dto.setEventDate(event.getEventDate());
         dto.setId(event.getId());
         dto.setInitiator(UserMapper.mapToUserShortDto(event.getInitiator()));
         dto.setPaid(event.isPaid());
         dto.setTitle(event.getTitle());
-        dto.setViews(amountOfViews);
-        dto.setComments(amountOfComments);
+        dto.setViews(0);
+        dto.setComments(0);
         return dto;
     }
 }
