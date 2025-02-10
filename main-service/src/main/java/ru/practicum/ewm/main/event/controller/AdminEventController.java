@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.main.event.dto.EventFullDto;
-import ru.practicum.ewm.main.event.dto.FindAllEventsParamEntity;
-import ru.practicum.ewm.main.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.ewm.main.event.dto.*;
 import ru.practicum.ewm.main.event.model.State;
 import ru.practicum.ewm.main.event.service.EventService;
 
